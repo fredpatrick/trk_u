@@ -1,0 +1,8 @@
+cpp/deps/*.d
+cpp/*.o
+lib/*.so
+lib/objs/*.o
+cpp/*.exe
+cpp/*.swp
+cpp/tmp
+include/tmp
