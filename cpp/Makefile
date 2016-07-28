@@ -8,7 +8,7 @@ OBJ_PREFIX = $(PRJDIR)/lib/objs/
 SUBDIRS = 
 
 #********** define prg tagets (i.e. .cc's for execuatables not lib members)
-PRGCC := 
+PRGCC := tstSocketSrvr.cpp tstSocketClnt.cpp
 
 ALLCC = $(wildcard *.cpp)
 include $(MAKE_DEPS)
@@ -26,7 +26,7 @@ PRGOBJS = $(patsubst %.cpp,%.o, $(PRGCC))
 obj: $(LIBOBJS)
 
 lib: 
-	$(MAKE) -C ../lib lib || exit 1; done
+	$(MAKE) -C ../lib lib || exit 1;
 
 PRGS  := $(patsubst %.cpp, %.exe, $(PRGCC) )
 
