@@ -46,6 +46,8 @@
 #include "trkutl.h"
 #include "SimpleSocketSrvr.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 
 using namespace trk;
 
@@ -59,15 +61,25 @@ int main() {
     int socket_fd = 0;
     std::string yesno = "";
     yesno = get_yesno( "Create socket for TCP connection?" );
+    std::cout <<  "tstSocketSrvr: yesno = " << yesno << std::endl;
     if ( yesno == "yes" ) {
+        std::cout << "tstSocketSrvr: Creating socket" << std::endl;
         SimpleSocketSrvr* sckt = new SimpleSocketSrvr(17303);
         socket_fd = sckt->ss_accept();
         double t0 = job_clock->base_time();
+        int n;
+        n = write(socket_fd, &t0, sizeof(double) );
+        std::cout << "tstSocketSrvr, write t0 = " << t0 << std::endl;
+        if ( n < 0 ) perror("write");
         double t1 = job_clock->job_time();
-        write(socket_fd, &t0, sizeof(double) );
         write(socket_fd, &t1, sizeof(double) );
+        std::cout << "tstSocketSrvr, write t1 = " << t1 << std::endl;
+        if ( n < 0 ) perror("write");
     }
-    close(socket_fd);
+    yesno = get_yesno("Close socket??" );
+    if (yesno != "never" ) {
+        close(socket_fd);
+    }
     return 0;
 }
 
