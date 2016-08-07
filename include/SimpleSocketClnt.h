@@ -55,6 +55,7 @@
             ~SimpleSocketClnt();
 
             int         ss_read(char* buf, int nbyte);
+            int         sock_fd();
         private:
             int         socket_fd_;
     };

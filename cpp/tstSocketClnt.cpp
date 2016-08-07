@@ -46,6 +46,8 @@
 #include "trkutl.h"
 #include "SimpleSocketClnt.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 using namespace trk;
 
@@ -56,7 +58,7 @@ int main() {
     JobClock* job_clock = trk::JobClock::instance();
     std::cout << *job_clock << std::endl;
     double rt0 = job_clock->base_time();
-    std::cout << " rt0 = " << rt0;
+    std::cout << " rt0 = " << rt0 << std::endl;;
 
     SimpleSocketClnt* clnt = new SimpleSocketClnt("192.168.1.167", 17303);
 
@@ -65,16 +67,20 @@ int main() {
     int n = clnt->ss_read((char*)&t0, sizeof(double) );
     if ( n == -1 ) {
         std::cout << "tstSocketClnt: read failed for t0" << std::endl;
-        return 0;
+        return 1;
     }
-    std::cout << " t0  = " << t0;
+    double t0c = job_clock->job_time();
+    std::cout << "tstSocketClnt: t0  = " << t0 << std::endl;
+    std::cout << "tstSocketClnt: t0c = " << t0c << std::endl;
     n = clnt->ss_read((char*)&t1, sizeof(double) );
     if ( n == -1 ) {
         std::cout << "tstSocketClnt: read failed for t1" << std::endl;
-        return 0;
+        return 1;
     }
-    std::cout << " t1  = " << t1;
-    return 1;
+    double t1c = job_clock->job_time();
+    std::cout << "tstSocketClnt: t1  = " << t1 << std::endl;
+    std::cout << "tstSocketClnt: t1c = " << t1c << std::endl;
+    return 0;
 }
 
 

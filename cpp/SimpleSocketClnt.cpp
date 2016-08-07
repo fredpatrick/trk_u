@@ -43,6 +43,7 @@
  */
 
 #include "SimpleSocketClnt.h"
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -54,16 +55,16 @@
 trk::SimpleSocketClnt::
 SimpleSocketClnt(const std::string& ipaddr, int portno)
 {
-    int socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if ( socket_fd_ == -1) {
         perror("socket");
         // need to throw exception here
     }
     struct sockaddr_in      serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr) );
-    serv_addr.sin_family        = AF_INET;
+    serv_addr.sin_family        = PF_INET;
     serv_addr.sin_port          = htons(portno);
-    int ierr = inet_pton(AF_INET, ipaddr.c_str(), &serv_addr.sin_addr);
+    int ierr = inet_pton(PF_INET, ipaddr.c_str(), &serv_addr.sin_addr);
     if (ierr == 0 ) {
         std::cout << "inet_pton error occured" << std::endl;
         // need to throw exception here
@@ -85,18 +86,35 @@ int
 trk::SimpleSocketClnt::
 ss_read(char* buf, int nbyte)
 {
-    int  nr   = nbyte;
+    int  nt   = nbyte;
     int  n    = 0;
+    int  nr;
     bool done = false;
     while ( !done ) {
-        n = read(socket_fd_, (void*)buf[n], nr);
-        if ( n == -1 ) {
-            std::cout << "SimpleSocketClnt::read error" << std:: endl;
+        nr = read(socket_fd_, (void*)&buf[n], nt);
+        if ( nr == -1 ) {
+            perror("ss_read");
+            std::cout << "SimpleSocketClnt::read error" << std::endl;
             return -1;
         }
-        if ( n == nr ) done = true;
-        nr = nbyte - n;
+        if ( nr == nt ) {
+            done = true;
+        } else {
+            std::cout << "SimpleSocketClnt.ss_read, n, nr, nt = " << 
+                       n << ", " << nr << ", " << nr << ", " << n << std::endl;
+            nt = nt - nr;
+            n  = n + nr;
+        }
     }
     return nbyte;
 }
 
+int 
+trk::SimpleSocketClnt::
+sock_fd()
+{
+    std::cout << "SimpleSocketClnt:sock_fd, socket_fd_ = " << socket_fd_ << std::endl;
+    std::cout << "SimpleSocketClnt:sock_fd, socket_fd_ = " << &socket_fd_ << std::endl;
+    std::cout << this << std::endl;
+    return socket_fd_;
+}
