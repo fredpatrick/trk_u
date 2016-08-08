@@ -55,6 +55,7 @@ trk::SimpleSocketSrvr::
 SimpleSocketSrvr(int portno)
 {
     listen_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    std::cout << "SimpleSocketClnt.ctor, listen_fd = " << listen_fd_ << std::endl;
     if ( listen_fd_ == -1) {
         perror("socket");
         // need to throw exception here
