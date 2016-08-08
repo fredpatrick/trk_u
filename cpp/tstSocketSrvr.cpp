@@ -69,12 +69,12 @@ int main() {
         double t0 = job_clock->base_time();
         int n;
         n = write(socket_fd, &t0, sizeof(double) );
-        std::cout << "tstSocketSrvr, write t0 = " << t0 << std::endl;
         if ( n < 0 ) perror("write");
+        std::cout << "tstSocketSrvr, write t0 = " << t0 << std::endl;
         double t1 = job_clock->job_time();
         write(socket_fd, &t1, sizeof(double) );
-        std::cout << "tstSocketSrvr, write t1 = " << t1 << std::endl;
         if ( n < 0 ) perror("write");
+        std::cout << "tstSocketSrvr, write t1 = " << t1 << std::endl;
     }
     yesno = get_yesno("Close socket??" );
     if (yesno != "never" ) {
