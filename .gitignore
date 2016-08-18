@@ -9,4 +9,6 @@ include/tmp
 
 bin/tstSocketClnt
 bin/tstSocketSrvr
+bin/tstEventsServer
+bin/tstEventsClient
 

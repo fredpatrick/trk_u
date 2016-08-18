@@ -1,1 +1,1 @@
-export DYLD_LIBRARY_PATH=/Users/fredpatrick/wrk/trk_u/lib
+export LD_LIBRARY_PATH=/home/fredpatrick/wrk/trk_u/lib
