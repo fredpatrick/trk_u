@@ -51,7 +51,6 @@
 trk::TrackEvent::
 TrackEvent(EventBuffer* ebfr)
 {
-    std::cout << "TrackEvent-ctor-1" << std::endl;
     ebfr_ = ebfr;
     tag_ = "TRK";
 
@@ -66,7 +65,6 @@ TrackEvent(double          tm_event,
             const std::string& zone_name,
             const TRK_STATE&   track_state)
 {
-    std::cout << "TrackEvent-ctor-2" << std::endl;
     tag_         = "TRK";
     tm_event_    = tm_event;
     zone_name_   = zone_name;
@@ -82,7 +80,6 @@ TrackEvent(double          tm_event,
 trk::TrackEvent::
 ~TrackEvent()
 {
-    std::cout << "TrackEvent-dtor" << std::endl;
     delete ebfr_;
 }
 int
@@ -90,6 +87,7 @@ trk::TrackEvent::
 write_event(EventDevice* efd)
 {
     int ns = efd->write(ebfr_);
+    return ns;
 }
 
 void

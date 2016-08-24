@@ -52,7 +52,6 @@
 trk::BlockEvent::
 BlockEvent(EventBuffer* ebfr)
 {
-    std::cout << "BlockEvent-ctor-1" << std::endl;
     ebfr_ = ebfr;
     tag_ = "BLK";
 
@@ -67,7 +66,6 @@ BlockEvent(double          tm_event,
             const std::string& block_name,
             const BLK_STATE&   block_state)
 {
-    std::cout << "BlockEvent-ctor-2" << std::endl;
     tag_          = "BLK";
     tm_event_     = tm_event;
     block_name_   = block_name;
@@ -84,7 +82,6 @@ BlockEvent(double          tm_event,
 trk::BlockEvent::
 ~BlockEvent()
 {
-    std::cout << "BlockEvent-dtor" << std::endl;
     delete ebfr_;
 }
 
@@ -93,7 +90,7 @@ trk::BlockEvent::
 write_event(EventDevice* efd)
 {
     int ns;
-    efd->write(ebfr_);
+    return efd->write(ebfr_);
 }
 
 void

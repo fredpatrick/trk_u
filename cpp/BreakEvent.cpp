@@ -53,7 +53,6 @@
 trk::BreakEvent::
 BreakEvent(EventBuffer* ebfr)
 {
-    std::cout << "BreakEvent-ctor-1" << std::endl;
     ebfr_ = ebfr;
     tag_  = "BRK";
     tm_event_       = ebfr_->dbldat();
@@ -63,7 +62,6 @@ BreakEvent(EventBuffer* ebfr)
 trk::BreakEvent::
 BreakEvent(double      tm_event)
 {
-    std::cout << "BreakEvent-ctor-2" << std::endl;
     tag_        = "BRK";
     tm_event_   = tm_event;
     event_seq_n_++;
@@ -83,6 +81,7 @@ trk::BreakEvent::
 write_event(EventDevice* efd)
 {
     int ns = efd->write(ebfr_);
+    return ns;
 }
 
 void

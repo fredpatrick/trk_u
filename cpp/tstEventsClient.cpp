@@ -78,8 +78,8 @@ int main() {
             done = true;
             break;
         } else {
-            std::cout << "| tstEventsClient: " << event->tag() << 
-                            " received at " << *job_clock << std::endl;
+//          std::cout << "| tstEventsClient: " << event->tag() << 
+//                          " received at " << *job_clock << std::endl;
             event->print(0);
             if ( event->tag() == "BRK" ) {
                 done = true;

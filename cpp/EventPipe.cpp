@@ -74,7 +74,6 @@ write(EventBuffer* ebfr)
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
-    std::cout << "EventPipe::write- tag = " << tag << std::endl;
     ::write( event_fds_[1], &bfrlen, sizeof(int) );
     int ns = ::write( event_fds_[1], bfr, bfrlen);
     return ns;
@@ -86,13 +85,11 @@ read()
 {
     int bfrlen;
     int ns = ::read(event_fds_[0], &bfrlen, sizeof(int) );
-    std::cout << "EventPipe::read- bfrlen = " << bfrlen << std::endl;
     char* bfr = new char[bfrlen];
     ns = ::read(event_fds_[0], bfr, bfrlen  );
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
-    std::cout << "EventPipe::read - tag = " << tag << std::endl;
     EventBuffer* ebfr = new EventBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;

@@ -52,7 +52,6 @@
 trk::SwitchEvent::
 SwitchEvent(EventBuffer* ebfr)
 {
-    std::cout << "SwitchEvent-ctor-1" << std::endl;
     tag_ = "SW ";
     ebfr_ =ebfr;
     tm_event_       = ebfr_->dbldat();
@@ -66,7 +65,6 @@ SwitchEvent(double          tm_event,
             int             sw_num,
             SW_DIRECTION    sw_direc)
 {
-    std::cout << "SwitchEvent-ctor-2" << std::endl;
     tag_          = "SW ";
     tm_event_     = tm_event;
     sw_num_       = sw_num;
@@ -82,7 +80,6 @@ SwitchEvent(double          tm_event,
 trk::SwitchEvent::
 ~SwitchEvent()
 {
-    std::cout << "SwitchEvent-dtor" << std::endl;
     delete ebfr_;
 }
 
@@ -91,6 +88,7 @@ trk::SwitchEvent::
 write_event(EventDevice* efd)
 {
     int ns = efd->write(ebfr_);
+    return ns;
 }
 
 void

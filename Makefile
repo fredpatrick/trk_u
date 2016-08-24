@@ -12,7 +12,7 @@ obj:
 	$(IDIRCMD) $(TRK_U_DIR)/lib/objs
 	$(MAKE) -C ./cpp obj || exit 1;
 
-libs: obj
+libs: obj setup
 	$(MAKE) -C ./cpp lib || exit 1;
 
 prg: libs
@@ -28,4 +28,4 @@ clean:
 setup:
 	$(IDIRCMD) $(TRK_U_DIR)/bin
 	echo $(ALL_LIB_DIRS)
-	./admin/make_ld_library_path $(ALL_LIB_DIRS) > ./bin/setup_trk_u.sh
+	./admin/make_set_env.sh $(ALL_LIB_DIRS) > ./bin/setup_trk_u.sh

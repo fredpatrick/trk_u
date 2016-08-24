@@ -134,7 +134,7 @@ intdat()
 {
     int i;
     ::memcpy(&i, &bfr_[bfrndx_], sizeof(int) );
-    bfrndx_ += sizeof(double);
+    bfrndx_ += sizeof(int);
     return i;
 }
     
