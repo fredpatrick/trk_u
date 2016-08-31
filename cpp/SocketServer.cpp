@@ -42,7 +42,7 @@
  * 
  */
 
-#include "EventSocketServer.h"
+#include "SocketServer.h"
 #include "EventBuffer.h"
 #include "event_device_error.h"
 #include <sys/socket.h>
@@ -54,15 +54,15 @@
 #include <iostream>
 #include <sstream>
 
-trk::EventSocketServer::
-EventSocketServer(int portno)
+trk::SocketServer::
+SocketServer(int portno)
 {
     listen_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
     if ( listen_fd_ == -1) {
         ::perror("socket");
         // need to throw exception here
     }
-    std::cout << "EventSocketServer.ctor, listen_fd = " << listen_fd_ << std::endl;
+    std::cout << "SocketServer.ctor, listen_fd = " << listen_fd_ << std::endl;
     struct sockaddr_in      serv_addr;
     ::memset(&serv_addr, 0, sizeof(serv_addr) );
     serv_addr.sin_family        = AF_INET;
@@ -71,24 +71,24 @@ EventSocketServer(int portno)
     int ierr = ::bind(listen_fd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr) );
     if ( ierr == -1 ) {
         ::perror( "bind");
-        throw event_device_error("EventSocketServer-ctor socket");
+        throw event_device_error("SocketServer-ctor socket");
     }
     listen(listen_fd_, 10);
     socket_fd_ = accept(listen_fd_, (struct sockaddr*)NULL, NULL);
     if ( socket_fd_ == -1 ) {
         ::perror("accept");
-        throw event_device_error("EventSocketServer-ctor socket");
+        throw event_device_error("SocketServer-ctor socket");
     }
 }
 
-trk::EventSocketServer::
-~EventSocketServer()
+trk::SocketServer::
+~SocketServer()
 {
     close ( listen_fd_);
 }
 
 int
-trk::EventSocketServer::
+trk::SocketServer::
 write(EventBuffer* ebfr)
 {
     int bfrlen = ebfr->bfrlen();
@@ -99,34 +99,34 @@ write(EventBuffer* ebfr)
     int nl = ::write( socket_fd_, &bfrlen, sizeof(int) );
     if ( nl != sizeof(int) ) {
         std::ostringstream ost;
-        ost << "EventSocketServer:write, error writing bfrlen, ns = " << nl;
+        ost << "SocketServer:write, error writing bfrlen, ns = " << nl;
         throw event_device_error(ost.str() );
     }
     int ns = ::write( socket_fd_, bfr, bfrlen);
     if ( ns != bfrlen) {
         std::ostringstream ost;
-        ost << "EventSocketServer:write, error writing bfr, ns = " << ns;
+        ost << "SocketServer:write, error writing bfr, ns = " << ns;
         throw event_device_error(ost.str() );
     }
     return ns;
 }
 
 trk::EventBuffer* 
-trk::EventSocketServer::
+trk::SocketServer::
 read()
 {
     int bfrlen;
     int nl = ::read(socket_fd_, &bfrlen, sizeof(int) );
     if ( nl != sizeof(int) ) {
         std::ostringstream ost;
-        ost << "EventSocketServer:read, error reading bfrlen, nl = " << nl;
+        ost << "SocketServer:read, error reading bfrlen, nl = " << nl;
         throw event_device_error(ost.str() );
     }
     char* bfr = new char[bfrlen];
     int ns = ::read( socket_fd_, bfr, bfrlen);
     if ( ns != sizeof(int) ) {
         std::ostringstream ost;
-        ost << "EventSocketServer:read, error reading bfrlen, ns = " << ns;
+        ost << "SocketServer:read, error reading bfrlen, ns = " << ns;
         throw event_device_error(ost.str() );
     }
 

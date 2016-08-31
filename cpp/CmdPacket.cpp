@@ -42,53 +42,85 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#include "CmdPacket.h"
+#include "EventBuffer.h"
+#include "EventDevice.h"
+#include "illegal_cmdpacket.h"
 
-#include "trkutl.h"
-#include <string>
-#include <utility>
-
-#define BFRMAX 100
-
-namespace trk {
-    class EventBuffer
-    {
-        public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
-
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
-        private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
-    };
-
+trk::CmdPacket::
+CmdPacket(const std::string& command,
+          const std::string& type,
+          int                n_item)
+{
+    tag_     = "CMD";
+    command_ = command;
+    type_    = type;
+    n_item_  = n_item;
+    items_   = new std::pair<int,int>[n_item];
+    cbfr_    = new EventBuffer(tag_);
 }
-#endif
+
+trk::CmdPacket::
+CmdPacket(EventDevice* cmd_fd)
+{
+    cbfr_    = cmd_fd->read();
+    tag_     = cbfr_->tag();
+    if ( tag_ != "CMD" ) throw illegal_cmdpacket("CmdPacket.ctor device", tag_);
+
+    command_ = cbfr_->strdat();
+    type_    = cbfr_->strdat();
+    n_item_  = cbfr_->intdat();
+    items_   = new std::pair<int,int>[n_item_];
+    for ( int i = 0; i < n_item_; i++) {
+        items_[i] = cbfr_->pairdat();
+    }
+}
+
+trk::CmdPacket::
+~CmdPacket()
+{
+    delete[] items_;
+    delete   cbfr_;
+}
+
+void
+trk::CmdPacket::
+write( EventDevice* cmd_fd)
+{
+    cmd_fd->write(cbfr_);
+}
+
+std::string
+trk::CmdPacket::
+command()
+{
+    return command_;
+}
+
+std::string
+trk::CmdPacket::
+type()
+{
+    return type_;
+}
+
+int
+trk::CmdPacket::
+n_item()
+{
+    return n_item_;
+}
+
+std::pair<int, int>
+trk::CmdPacket::
+item(int i)
+{
+    return items_[i];
+}
+
+void
+trk::CmdPacket::
+item(int i, std::pair<int, int> p)
+{
+    items_[i] = p;
+}

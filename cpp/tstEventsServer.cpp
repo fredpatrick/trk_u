@@ -56,7 +56,7 @@
 #include "SwitchEvent.h"
 #include "TrackEvent.h"
 #include "EventPipe.h"
-#include "EventSocketServer.h"
+#include "SocketServer.h"
 #include "trkutl.h"
 
 using namespace trk;
@@ -142,7 +142,7 @@ int main() {
                                 // n_event is decremented until pipe is empty.
 
     EventPipe* efd = new EventPipe();
-    EventSocketServer* ess = new EventSocketServer(17303);
+    SocketServer* ess = new SocketServer(17303);
 
     ::pthread_t thread;
     if ( ::pthread_create(&thread, NULL,

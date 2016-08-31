@@ -41,54 +41,42 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+#include <sstream>
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#include "illegal_cmdpacket.h"
 
-#include "trkutl.h"
-#include <string>
-#include <utility>
-
-#define BFRMAX 100
-
-namespace trk {
-    class EventBuffer
-    {
-        public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
-
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
-        private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
-    };
-
+trk::illegal_cmdpacket::
+illegal_cmdpacket( const std::string& src,
+                   const std::string& tag )
+{
+    std::ostringstream ost;
+    ost << src << ", tag = " << tag;
+    reason_ = ost.str();
 }
-#endif
+
+trk::
+illegal_cmdpacket::
+illegal_cmdpacket ( const illegal_cmdpacket& cf)
+{
+    reason_ = cf.reason_;
+}
+
+trk::illegal_cmdpacket&
+trk::illegal_cmdpacket::
+operator=( const illegal_cmdpacket& cf)
+{
+    if ( &cf != this ) reason_ = cf.reason_;
+    return *this;
+}
+
+trk::illegal_cmdpacket::
+~illegal_cmdpacket()
+{
+}
+
+const char*
+trk::illegal_cmdpacket::
+reason() const
+{
+    return reason_.c_str();
+} 

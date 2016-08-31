@@ -8,7 +8,7 @@ namespace trk
 {
 
 enum SW_DIRECTION {THRU, OUT, NOVAL };
-enum TRK_STATE { BUSY, IDLE };
+enum TRK_STATE { IDLE, BUSY };
 enum BLK_STATE { GO, STOP};
 
 enum TrackState { LowerLoopCW, LowerLoopCCW,

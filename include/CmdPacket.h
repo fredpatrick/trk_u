@@ -42,53 +42,39 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#ifndef TRK_CMDPACKET_HH
+#define TRK_CMDPACKET_HH
 
-#include "trkutl.h"
 #include <string>
 #include <utility>
 
-#define BFRMAX 100
-
 namespace trk {
-    class EventBuffer
+    class EventBuffer;
+    class EventDevice;
+
+    class CmdPacket 
     {
         public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
+            CmdPacket(const std::string& command,
+                      const std::string& type,
+                      int                n_item);
+            CmdPacket(EventDevice* cmd_fd);
+            ~CmdPacket();
 
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
+            void                write(EventDevice* cmd_fd);
+            std::string         command();
+            std::string         type();
+            int                 n_item();
+            std::pair<int, int> item(int i);
+            void                item(int i, std::pair<int, int> p);
         private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
+            std::string         tag_;
+            std::string         command_;
+            std::string         type_;
+            int                 n_item_;
+            std::pair<int,int>* items_;
+            EventBuffer*        cbfr_;
     };
-
 }
+
 #endif

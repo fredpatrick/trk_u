@@ -42,53 +42,28 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#ifndef TRK_ILLEGALCMDPACKET_HH
+#define TRK_ILLEGALCMDPACKET_HH
 
-#include "trkutl.h"
 #include <string>
-#include <utility>
 
-#define BFRMAX 100
+namespace trk
+{
 
-namespace trk {
-    class EventBuffer
+    class illegal_cmdpacket
     {
         public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
-
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
+            illegal_cmdpacket(const std::string& src,
+                              const std::string& tag);
+            ~illegal_cmdpacket();
+     
+            const char* reason() const;
+            illegal_cmdpacket ( const illegal_cmdpacket&);
+            illegal_cmdpacket& operator=( const illegal_cmdpacket&);
         private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
+            std::string reason_;
     };
 
 }
+
 #endif

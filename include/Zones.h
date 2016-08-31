@@ -42,53 +42,59 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#ifndef TRK_ZONES_HH
+#define TRK_ZONES_HH
 
-#include "trkutl.h"
+#include <map>
+#include <vector>
 #include <string>
-#include <utility>
-
-#define BFRMAX 100
 
 namespace trk {
-    class EventBuffer
-    {
+    enum ZN {O72A, O72B, O72C, O72X, O36X, O60A, O60B, O60C, O60X, XXXX};
+    enum ROTATION { CW = 0, CCW = 1};
+    enum LEVEL    { LOWER = 0, UPPER = 2, TRANSITION = 4};
+    enum LAYOUT_STATE { LOWERCW = 0, LOWERCCW = 1, UPPERCW = 2, UPPERCCW = 3,
+                          TRANSITIONCW = 4, TRANSITIONCCW = 5};
+
+
+    class TrackEvent;
+    class Zone;
+
+    class Zones {
         public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
+            Zones();
+            ~Zones();
 
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
+            int         active_zones (TrackEvent* event);
+            LAYOUT_STATE  current_state(TrackEvent* event);
+            void          print_log_entry(TrackEvent* event,
+                                          const LAYOUT_STATE& current_state);
 
         private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
-    };
+            std::map<std::string, int>         zone_indexes_;
+            std::vector<Zone*>                 zones_;
+            std::map<std::string, int>         active_indexes_;
+            typedef std::map<std::string, int>::const_iterator AZI;
+            ZN           ix_[9];
+            LAYOUT_STATE ls_[6];
 
+            struct entry {
+                entry() {}
+                entry(LEVEL a, int b, int c, int d, int e) :
+                                      level(a), cw0(b), cw1(c), ccw0(d), ccw1(e) {}
+                LEVEL       level;
+                int         cw0;
+                int         cw1;
+                int         ccw0;
+                int         ccw1;
+            }; 
+            entry        zone_data_[9];
+            ZN           previous_zone_;
+            TrackEvent*  previous_event_;
+    }; 
+
+    std::ostream&
+    operator<<( std::ostream& ostrm, const trk::LAYOUT_STATE& layout_state);
 }
+
 #endif

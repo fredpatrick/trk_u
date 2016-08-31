@@ -42,25 +42,74 @@
  * 
  */
 
-#ifndef TRK_EVENTSOCKETSERVER_HH
-#define TRK_EVENTSOCKETSERVER_HH
+#include <iostream>
+#include <iomanip>
+#include <unistd.h>
+#include <stdio.h>
+#include <pthread.h>
 
-#include "EventDevice.h"
-#include <string>
+#include "trkutl.h"
+#include "JobClock.h"
+#include "CmdPacket.h"
+#include "EventFactory.h"
+#include "InputEvent.h"
+#include "BreakEvent.h"
+#include "TrackEvent.h"
+#include "SocketClient.h"
+#include "Zones.h"
+#include "trkutl.h"
 
-namespace trk
-{
-    class EventSocketServer: public EventDevice
-    {
-        public:
-            EventSocketServer(int portno);
-            ~EventSocketServer();
+using namespace trk;
 
-            int          write(EventBuffer* ebfr);
-            EventBuffer* read();
-        private:
-            int         socket_fd_;
-            int         listen_fd_;
-    };
+int main() {
+
+    std::cout << "Display TRK event state as matrix, zone_name vs time" << std::endl;
+    static pthread_mutex_t write_event_; 
+    JobClock* job_clock = trk::JobClock::instance();
+    std::cout << *job_clock << std::endl;
+
+    SocketClient* esc    = new SocketClient("192.168.1.167", 17303);
+    SocketClient* cmd_fd = new SocketClient("192.168.1.167", 17300);
+    int                 ns = 6;
+    std::pair<int, int> item;
+    CmdPacket           cp("set",
+                           "switch",
+                           ns);
+    for ( int i = 0; i < ns; i++) {
+        item.first = i;
+        item.second = THRU;
+        cp.item(i, item);
+    }
+    cp.write(cmd_fd);
+
+
+    Zones*  zones = new Zones();
+
+
+    EventFactory* event_factory = EventFactory::instance();
+    InputEvent*   event;
+
+    std::cout << "trkEventLog: Entering event loop" << std::endl;
+    bool done = false;
+    std::cout << "  Time  | O72A   | O72B  | O72C  |" << std::endl;
+    while ( !done ) {
+        InputEvent* event = event_factory->get_next_event(esc);
+        if ( event == 0 ) {
+            std::cout << "trkEventLog: Error getting next event" << std::endl;
+            done = true;
+            break;
+        } else {
+            //event->print(0);
+            if ( event->tag() == "BRK" ) break;
+
+            if ( event->tag() == "TRK" ) {
+                TrackEvent* evt = dynamic_cast<TrackEvent*>(event);
+                zones->active_zones(evt);
+                LAYOUT_STATE current_state = zones->current_state(evt);
+                zones->print_log_entry(evt, current_state);
+            }
+        }
+    }
+
+    return 1;
 }
-#endif

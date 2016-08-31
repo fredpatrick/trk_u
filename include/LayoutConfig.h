@@ -42,53 +42,37 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#ifndef TRK_LAYOUTCONFIG_HH
+#define TRK_LAYOUTCONFIG_HH
 
-#include "trkutl.h"
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <vector>
 #include <string>
-#include <utility>
-
-#define BFRMAX 100
 
 namespace trk {
-    class EventBuffer
-    {
-        public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
+    class LayoutConfig {
+        public: 
+            static LayoutConfig* instance();
 
-            void        reset();
+            ~LayoutConfig();
 
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
+            std::map<std::string, int> zone_indexes();
+            std::map<std::string, int> blk_names();
+            std::map<std::string, int> sw_names();
+        protected:
+            LayoutConfig(const std::string& cfgfil);
         private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
+
+            std::map<std::string, int>        zone_indexes_;;
+            std::map<std::string, int>        blk_names_;;
+            std::map<std::string, int>        sw_names_;;
+
+            static LayoutConfig* instance_;
     };
 
 }
+
 #endif

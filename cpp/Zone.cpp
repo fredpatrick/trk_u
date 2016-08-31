@@ -42,53 +42,23 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#include "Zone.h"
+#include <iostream>
 
-#include "trkutl.h"
-#include <string>
-#include <utility>
-
-#define BFRMAX 100
-
-namespace trk {
-    class EventBuffer
-    {
-        public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
-
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
-        private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
-    };
-
+trk::
+Zone::Zone(const std::string& zone_name)
+{
+    zone_name_ = zone_name;
 }
-#endif
+
+trk::Zone::
+~Zone()
+{
+}
+
+std::string
+trk::Zone::
+zone_name()
+{
+    return zone_name_;
+}

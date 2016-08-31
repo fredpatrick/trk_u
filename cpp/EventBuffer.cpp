@@ -157,6 +157,29 @@ dbldat()
     return d;
 }
 
+void
+trk::EventBuffer::
+pairdat(std::pair<int, int> pdat)
+{
+    ::memcpy(&bfr_[bfrndx_], &pdat.first  , sizeof(int) );
+    bfrndx_ += sizeof(int);
+    ::memcpy(&bfr_[bfrndx_], &pdat.second , sizeof(int) );
+    bfrndx_ += sizeof(int);
+    bfrlen_ = bfrndx_;
+}
+
+std::pair<int, int>
+trk::EventBuffer::
+pairdat()
+{
+    std::pair<int, int> p;
+    ::memcpy(&p.first , &bfr_[bfrndx_], sizeof(int));
+    bfrndx_ += sizeof(int);
+    ::memcpy(&p.second, &bfr_[bfrndx_], sizeof(int));
+    bfrndx_ += sizeof(int);
+    return p;
+}
+
 trk::BLK_STATE
 trk::EventBuffer::
 blkstate()

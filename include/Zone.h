@@ -42,25 +42,25 @@
  * 
  */
 
-#ifndef TRK_EVENTSOCKETCLIENT_HH
-#define TRK_EVENTSOCKETCLIENT_HH
+#ifndef TRK_ZONE_HH
+#define TRK_ZONE_HH
 
-#include "EventDevice.h"
+
 #include <string>
+#include "trkutl.h"
 
-namespace trk
-{
-    class EventSocketClient: public EventDevice
-    {
+namespace trk {
+
+    class Zone {
         public:
-            EventSocketClient(const std::string& ipaddr, int portno);
-            ~EventSocketClient();
+            Zone(const std::string& zone_name);
+            ~Zone();
 
-            int          write(EventBuffer* ebfr);
-            EventBuffer* read();
+            std::string     zone_name();
         private:
-            int         socket_fd_;
-            int         listen_fd_;
+            std::string     zone_name_;
     };
+
 }
+
 #endif

@@ -42,53 +42,25 @@
  * 
  */
 
-#ifndef TRK_EVENTBUFFER_H
-#define TRK_EVENTBUFFER_H
+#ifndef TRK_SOCKETCLIENT_HH
+#define TRK_SOCKETCLIENT_HH
 
-#include "trkutl.h"
+#include "EventDevice.h"
 #include <string>
-#include <utility>
 
-#define BFRMAX 100
-
-namespace trk {
-    class EventBuffer
+namespace trk
+{
+    class SocketClient: public EventDevice
     {
         public:
-            EventBuffer(const std::string& tag);
-            EventBuffer(int                bfrlen,
-                        const char*        bfr);
-            ~EventBuffer();
+            SocketClient(const std::string& ipaddr, int portno);
+            ~SocketClient();
 
-            void        reset();
-
-            void        strdat(const std::string& sdat);
-            std::string strdat();
-
-            void        intdat(int                idat);
-            int         intdat();
-
-            void        dbldat(double             ddat);
-            double      dbldat();
-
-            void        pairdat(std::pair<int,int> pdat);
-            std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
-            TRK_STATE    trkstate();
-
-            std::string tag();
-            int         bfrlen();
-            char*       bfr();
-
+            int          write(EventBuffer* ebfr);
+            EventBuffer* read();
         private:
-            char        bfr_[BFRMAX];
-            std::string tag_;
-            int         bfrlen_;
-            int         bfrndx_;
-            char        ctag_[4];
+            int         socket_fd_;
+            int         listen_fd_;
     };
-
 }
 #endif

@@ -52,7 +52,7 @@
 #include "EventFactory.h"
 #include "InputEvent.h"
 #include "BreakEvent.h"
-#include "EventSocketClient.h"
+#include "SocketClient.h"
 #include "trkutl.h"
 
 using namespace trk;
@@ -64,7 +64,7 @@ int main() {
     JobClock* job_clock = trk::JobClock::instance();
     std::cout << *job_clock << std::endl;
 
-    EventSocketClient* esc = new EventSocketClient("192.168.1.167", 17303);
+    SocketClient* esc = new SocketClient("192.168.1.167", 17303);
 
     EventFactory* event_factory = EventFactory::instance();
     InputEvent*   event;
