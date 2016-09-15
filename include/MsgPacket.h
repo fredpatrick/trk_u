@@ -42,25 +42,31 @@
  * 
  */
 
-#ifndef TRK_SOCKETSERVER_HH
-#define TRK_SOCKETSERVER_HH
+#ifndef TRK_MSGPACKET_HH
+#define TRK_MSGPACKET_HH
 
-#include "EventDevice.h"
 #include <string>
+#include <utility>
 
-namespace trk
-{
-    class SocketServer: public EventDevice
+namespace trk {
+    class EventBuffer;
+    class EventDevice;
+
+    class MsgPacket 
     {
         public:
-            SocketServer(int portno);
-            ~SocketServer();
+            MsgPacket(const std::string& text);
+            MsgPacket(EventDevice* cmd_fd);
+            ~MsgPacket();
 
-            int          write(EventBuffer* ebfr);
-            EventBuffer* read();
+            void                write(EventDevice* cmd_fd);
+            void                read(EventDevice* cmd_fd);
+            std::string         text();
         private:
-            int         socket_fd_;
-            int         listen_fd_;
+            std::string         tag_;
+            std::string         text_;
+            EventBuffer*        cbfr_;
     };
 }
+
 #endif

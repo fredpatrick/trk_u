@@ -55,6 +55,11 @@ Zones()
 {
     LayoutConfig* layout_config = LayoutConfig::instance();
     zone_indexes_  = layout_config->zone_indexes();
+    zones_.resize(zone_indexes_.size(), 0 );
+    typedef std::map<std::string, int>::const_iterator ZI;
+    for ( ZI p = zone_indexes_.begin(); p != zone_indexes_.end(); ++p) {
+        zones_[ p->second] =  new Zone(p->first);
+    }
     
     ix_[0] = O72A;
     ix_[1] = O72B;
@@ -73,13 +78,14 @@ Zones()
     ls_[5] = TRANSITIONCCW;
     zone_data_[O72A] = entry(LOWER,      O72B, XXXX, O72C, XXXX);
     zone_data_[O72B] = entry(LOWER,      O72C, XXXX, O72A, O72X);
-    zone_data_[O72C] = entry(UPPER,      O72A, O36X, O72B, O72X);
+    zone_data_[O72C] = entry(LOWER,      O72A, O36X, O72B, O72X);
     zone_data_[O72X] = entry(TRANSITION, O72B, O72C, XXXX, XXXX);
     zone_data_[O36X] = entry(TRANSITION, O72C, XXXX, O60A, XXXX);
     zone_data_[O60A] = entry(UPPER,      O60B, O60X, O60C, O36X);
     zone_data_[O60B] = entry(UPPER,      O60C, O60X, O60A, XXXX);
     zone_data_[O60C] = entry(UPPER,      O60A, XXXX, O60B, XXXX);
     zone_data_[O60X] = entry(TRANSITION, XXXX, XXXX, O60A, O60B);
+    previous_zone_ = XXXX;
 }
 
 trk::Zones::
@@ -105,6 +111,11 @@ active_zones(TrackEvent* event)
     } else if ( track_state == IDLE ) {
         active_indexes_.erase(zone_name);
     }
+/*
+    for (AZI p = active_indexes_.begin(); p != active_indexes_.end(); ++p) {
+        std::cout << "Zones.active_zones,  " << p->first << " " << p->second << std::endl;
+    }
+*/
     return active_indexes_.size();
 }
 
@@ -118,19 +129,32 @@ current_state(TrackEvent* event)
     
     LEVEL       level        = zone_data_[zone_index].level;
     ZN          current_zone = ix_[zone_index];
-    ROTATION    rot;
-    if ( previous_zone_ ==  zone_data_[zone_index].cw0 ||
-         previous_zone_ == zone_data_[zone_index].cw1 ) {
-            rot = CW;
-    } else if (previous_zone_ == zone_data_[zone_index].ccw0  ||
-               previous_zone_ == zone_data_[zone_index].ccw1 ) { 
-        rot = CCW;
-    } else {
-        //throw illegal_event;
+    ROTATION    rot = CCW;
+    if ( previous_zone_ != XXXX ) {
+        if ( previous_zone_ ==  zone_data_[zone_index].cw0 ||
+             previous_zone_ == zone_data_[zone_index].cw1 ) {
+                rot = CW;
+        } else if (previous_zone_ == zone_data_[zone_index].ccw0  ||
+                   previous_zone_ == zone_data_[zone_index].ccw1 ) { 
+            rot = CCW;
+        } else {
+            //throw illegal_event;
+        }
     }
     previous_zone_  = current_zone;
     previous_event_ = event;
     return ls_[level + rot];
+}
+
+void
+trk::Zones::
+print_log_header()
+{
+    std::cout << "  Time  ";
+    for (int i = 0; i < zones_.size(); i++) {
+        std::cout << "| " << zones_[i]->zone_name() << "  ";
+    }
+    std::cout << std::endl;
 }
 
 void
@@ -154,16 +178,26 @@ print_log_entry(TrackEvent* event, const LAYOUT_STATE& current_state)
             } else {
                 std::cout << "|XXXXXXX";
             }
-        } else {
-            for (AZI p = active_indexes_.begin(); p != active_indexes_.end(); p++ ) {
-                if ( p->second ==  i ) {
-                    std::cout << "|   *   ";
-                }
+            continue;
+        } 
+        bool az = false;
+        for (AZI p = active_indexes_.begin(); p != active_indexes_.end(); p++ ) {
+            if ( p->second ==  i ) {
+                std::cout << "|   *   ";
+                az = true;
             }
         }
+        if ( !az ) std::cout << "|       ";
     }
     std::cout << "| " << current_state;
     std::cout << std::endl;
+}
+
+std::string
+trk::Zones::
+zone_name(int i)
+{
+    return zones_[i]->zone_name();
 }
 
 std::ostream&

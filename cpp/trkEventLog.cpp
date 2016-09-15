@@ -51,6 +51,7 @@
 #include "trkutl.h"
 #include "JobClock.h"
 #include "CmdPacket.h"
+#include "MsgPacket.h"
 #include "EventFactory.h"
 #include "InputEvent.h"
 #include "BreakEvent.h"
@@ -58,6 +59,7 @@
 #include "SocketClient.h"
 #include "Zones.h"
 #include "trkutl.h"
+#include "illegal_cmdpacket.h"
 
 using namespace trk;
 
@@ -70,6 +72,15 @@ int main() {
 
     SocketClient* esc    = new SocketClient("192.168.1.167", 17303);
     SocketClient* cmd_fd = new SocketClient("192.168.1.167", 17300);
+/*
+    MsgPacket* mp;
+    try {
+        mp = new MsgPacket(cmd_fd);
+    } catch ( illegal_cmdpacket r ) {
+        std::cout << "trkEventLog: " << r.reason()  << std::endl;
+    }
+    std::cout << "trkEventLog: start - " << mp->text() <<std::endl;
+*/
     int                 ns = 6;
     std::pair<int, int> item;
     CmdPacket           cp("set",
@@ -80,8 +91,8 @@ int main() {
         item.second = THRU;
         cp.item(i, item);
     }
-    cp.write(cmd_fd);
-
+//  cp.write(cmd_fd);
+    std::cout << "trkEventLog: set switches THRU cmd sent to BeagleBone" << std::endl;
 
     Zones*  zones = new Zones();
 
@@ -91,7 +102,7 @@ int main() {
 
     std::cout << "trkEventLog: Entering event loop" << std::endl;
     bool done = false;
-    std::cout << "  Time  | O72A   | O72B  | O72C  |" << std::endl;
+    zones->print_log_header();
     while ( !done ) {
         InputEvent* event = event_factory->get_next_event(esc);
         if ( event == 0 ) {

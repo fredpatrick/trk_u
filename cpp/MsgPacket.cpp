@@ -43,98 +43,57 @@
  */
 
 #include <sstream>
-#include "CmdPacket.h"
+#include "MsgPacket.h"
 #include "EventBuffer.h"
 #include "EventDevice.h"
 #include "illegal_cmdpacket.h"
 
-trk::CmdPacket::
-CmdPacket(const std::string& command,
-          const std::string& type,
-          int                n_item)
+trk::MsgPacket::
+MsgPacket(const std::string& text)
 {
-    tag_     = "CMD";
-    command_ = command;
-    type_    = type;
-    n_item_  = n_item;
-    items_   = new std::pair<int,int>[n_item];
+    tag_     = "MSG";
+    text_    = text;
     cbfr_    = new EventBuffer(tag_);
-    cbfr_->strdat(command_);
-    cbfr_->strdat(type_);
-    cbfr_->intdat(n_item_);
+    cbfr_->strdat(text_);
 }
 
-trk::CmdPacket::
-CmdPacket(EventBuffer* cbfr)
+trk::MsgPacket::
+MsgPacket(EventDevice* cmd_fd)
 {
-    cbfr_    = cbfr;
+    cbfr_    = cmd_fd->read();
     tag_     = cbfr_->tag();
-    if ( tag_ != "CMD" ) {
+    if ( tag_ != "MSG" ) {
         std::stringstream ost;
-        ost << "CmdPacket.ctor,  tag " << tag_;
-        throw illegal_cmdpacket(ost.str() );
+        ost << "MsgPacket.ctor, cmd_fd = " << cmd_fd << ", tag = " << tag_;
+        throw illegal_cmdpacket( ost.str() );
     }
-    command_ = cbfr_->strdat();
-    type_    = cbfr_->strdat();
-    n_item_  = cbfr_->intdat();
-    items_   = new std::pair<int,int>[n_item_];
-    for ( int i = 0; i < n_item_; i++) {
-        items_[i] = cbfr_->pairdat();
-    }
+
+    text_    = cbfr_->strdat();
 }
 
-trk::CmdPacket::
-~CmdPacket()
+trk::MsgPacket::
+~MsgPacket()
 {
-    delete[] items_;
     delete   cbfr_;
 }
 
 void
-trk::CmdPacket::
+trk::MsgPacket::
 write( EventDevice* cmd_fd)
 {
-    cbfr_->reset();
-    cbfr_->strdat(command_);
-    cbfr_->strdat(type_);
-    cbfr_->intdat(n_item_);
-    for ( int i = 0; i < n_item_; i++) {
-        cbfr_->pairdat(items_[i]);
-    }
     cmd_fd->write(cbfr_);
 }
 
-std::string
-trk::CmdPacket::
-command()
-{
-    return command_;
-}
-
-std::string
-trk::CmdPacket::
-type()
-{
-    return type_;
-}
-
-int
-trk::CmdPacket::
-n_item()
-{
-    return n_item_;
-}
-
-std::pair<int, int>
-trk::CmdPacket::
-item(int i)
-{
-    return items_[i];
-}
-
 void
-trk::CmdPacket::
-item(int i, std::pair<int, int> p)
+trk::MsgPacket::
+read( EventDevice* cmd_fd)
 {
-    items_[i] = p;
+    cbfr_ = cmd_fd->read();
+}
+
+std::string
+trk::MsgPacket::
+text()
+{
+    return text_;
 }

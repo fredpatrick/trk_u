@@ -58,7 +58,7 @@ namespace trk {
             CmdPacket(const std::string& command,
                       const std::string& type,
                       int                n_item);
-            CmdPacket(EventDevice* cmd_fd);
+            CmdPacket(EventBuffer* cbfr);
             ~CmdPacket();
 
             void                write(EventDevice* cmd_fd);

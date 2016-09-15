@@ -1,6 +1,7 @@
 #ifndef TRK_TRKUTL_HH
 #define TRK_TRKUTL_HH
 
+#define DEBUG_SCKT 0
 #include <iostream>
 #include <string>
 

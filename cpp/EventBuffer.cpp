@@ -201,8 +201,8 @@ trkstate()
     int b;
     ::memcpy(&b, &bfr_[bfrndx_], sizeof(int) );
     bfrndx_+= sizeof(int);
-    if (      b == 0 ) return BUSY;
-    else if ( b == 1 ) return IDLE;
+    if (      b == 0 ) return IDLE;
+    else if ( b == 1 ) return BUSY;
     else {
         throw enum_out_of_range ("trkstate");
     }

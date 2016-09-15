@@ -42,6 +42,7 @@
  * 
  */
 
+#include "trkutl.h"
 #include "SocketClient.h"
 #include "EventBuffer.h"
 #include "event_device_error.h"
@@ -57,6 +58,10 @@
 trk::SocketClient::
 SocketClient(const std::string& ipaddr, int portno)
 {
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.ctor, ipaddr = " << ipaddr << 
+                                   ", portno = " << portno << std::endl;
+#endif
     socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     if ( socket_fd_ == -1) {
         ::perror("socket");
@@ -70,16 +75,22 @@ SocketClient(const std::string& ipaddr, int portno)
     if (ierr == 0 ) {
         throw event_device_error( "inet_pton error occured");
     }
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.ctor, looking for connection, portno = " << portno << std::endl;
+#endif
     ierr = connect(socket_fd_, (struct sockaddr*)&serv_addr, sizeof(serv_addr) );
     if ( ierr < 0 ) {
         ::perror("connect");
         throw event_device_error("SocketClient-ctor, error connecting socket");
     }
+    std::cout << "SocketClient.ctor, connected, portno = " << portno << 
+                                               "socket_fd = " << socket_fd_ <<std::endl;
 }
 
 trk::SocketClient::
 ~SocketClient()
 {
+    close(socket_fd_);
 }
 
 int
@@ -98,6 +109,10 @@ write(EventBuffer* ebfr)
         throw event_device_error(ost.str() );
     }
     int ns = ::write( socket_fd_, bfr, bfrlen);
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.write, socket_fd = " << socket_fd_ << 
+                                             ", ns = " << ns << std::endl;
+#endif
     if ( ns != bfrlen) {
         std::ostringstream ost;
         ost << "SocketClient:write, error writing bfr, ns = " << ns;
@@ -110,25 +125,36 @@ trk::EventBuffer*
 trk::SocketClient::
 read()
 {
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.read, ready to read cbfr" << std::endl;
+#endif
     int bfrlen;
     int nl = ::read(socket_fd_, &bfrlen, sizeof(int) );
     if ( nl != sizeof(int) ) {
         std::ostringstream ost;
-        ost << "SocketClient:read, error reading bfrlen, nl = " << nl;
+        ost << "SocketClient:read, error reading bfrlen, nl = " << nl <<
+                                     ", socket_fd = " << socket_fd_;
         throw event_device_error(ost.str() );
     }
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.read, bfrlen = " << bfrlen << std::endl;
+#endif
     char* bfr = new char[bfrlen];
     int ns = ::read( socket_fd_, bfr, bfrlen);
     if ( ns != bfrlen ) {
         std::ostringstream ost;
         ost << "SocketClient:read, error reading bfr, ns = " << ns << 
-                                                          "bfrlen = " << bfrlen;;
+                                                          "bfrlen = " << bfrlen <<
+                                            ", socket_fd = " << socket_fd_;
         throw event_device_error(ost.str() );
     }
 
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
+#if DEBUG_SCKT > 0
+    std::cout << "SocketClient.read, tag = " << tag << std::endl;
+#endif
     EventBuffer* ebfr = new EventBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;

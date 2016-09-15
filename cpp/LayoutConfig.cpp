@@ -19,12 +19,15 @@ trk::
 LayoutConfig::LayoutConfig(const std::string& cfgfil)
 {
     std::ifstream from(cfgfil.c_str() );
-//  cout << "LayoutConfig::LayoutConfig " << cfgfil << " opened" << endl;
+//  std::cout << "LayoutConfig::LayoutConfig " << cfgfil << " opened" << std::endl;
     char        cline[120];
 
     while (!from.eof() ) {
         std::string tag = "";
         from >> tag;
+        if ( !from.good() ) {
+            break;
+        }
         if  (tag[0] == '#' ) {
             from.getline(cline, 120);
         } else if ( tag == "SW")   {
@@ -44,6 +47,7 @@ LayoutConfig::LayoutConfig(const std::string& cfgfil)
             blk_names_[blk_name] = blk_index;
         }
     }
+    from.close();
 }
 
 std::map<std::string, int>

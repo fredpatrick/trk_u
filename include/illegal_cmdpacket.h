@@ -53,8 +53,7 @@ namespace trk
     class illegal_cmdpacket
     {
         public:
-            illegal_cmdpacket(const std::string& src,
-                              const std::string& tag);
+            illegal_cmdpacket(const std::string& reason);
             ~illegal_cmdpacket();
      
             const char* reason() const;

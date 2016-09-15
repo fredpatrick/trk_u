@@ -46,12 +46,9 @@
 #include "illegal_cmdpacket.h"
 
 trk::illegal_cmdpacket::
-illegal_cmdpacket( const std::string& src,
-                   const std::string& tag )
+illegal_cmdpacket( const std::string& reason)
 {
-    std::ostringstream ost;
-    ost << src << ", tag = " << tag;
-    reason_ = ost.str();
+    reason_ = reason;
 }
 
 trk::
