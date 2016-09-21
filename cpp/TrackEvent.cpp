@@ -45,11 +45,11 @@
 #include <unistd.h>
 
 #include "TrackEvent.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 
 trk::TrackEvent::
-TrackEvent(EventBuffer* ebfr)
+TrackEvent(PacketBuffer* ebfr)
 {
     ebfr_ = ebfr;
     tag_ = "TRK";
@@ -70,7 +70,7 @@ TrackEvent(double          tm_event,
     zone_name_   = zone_name;
     track_state_ = track_state;
     event_seq_n_++;
-    ebfr_ = new EventBuffer(tag_);
+    ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
     ebfr_->strdat(zone_name_);

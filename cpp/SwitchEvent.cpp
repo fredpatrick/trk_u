@@ -43,14 +43,14 @@
  */
 
 #include "SwitchEvent.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 
 #include <iostream>
 #include <unistd.h>
 
 trk::SwitchEvent::
-SwitchEvent(EventBuffer* ebfr)
+SwitchEvent(PacketBuffer* ebfr)
 {
     tag_ = "SW ";
     ebfr_ =ebfr;
@@ -58,23 +58,27 @@ SwitchEvent(EventBuffer* ebfr)
     event_seq_n_    = ebfr_->intdat();
     sw_num_         = ebfr_->intdat();
     sw_direc_       = ebfr_->swdirec();
+    value_          = ebfr_->intdat();
 }
 
 trk::SwitchEvent::
 SwitchEvent(double          tm_event,
             int             sw_num,
-            SW_DIRECTION    sw_direc)
+            SW_DIRECTION    sw_direc,
+            int             value)
 {
     tag_          = "SW ";
     tm_event_     = tm_event;
     sw_num_       = sw_num;
     sw_direc_     = sw_direc;
+    value_        = value;
     event_seq_n_++;
-    ebfr_ = new EventBuffer(tag_);
+    ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
     ebfr_->intdat(sw_num_);
     ebfr_->intdat(sw_direc_);
+    ebfr_->intdat(value_);
 }
 
 trk::SwitchEvent::
@@ -98,7 +102,8 @@ print(int ntab)
     std::cout.width(ntab);
     std::cout << "| ";
     std::cout << "SwitchEvent::" << sw_num_ << " - " << 
-                                 sw_direc_ <<  " - " << " - " <<
+                                 sw_direc_ <<  " - " << 
+                                 value_ << " - " <<
                                  event_seq_n_ << " - " << tm_event_ << std::endl;
 }
 
@@ -114,4 +119,11 @@ trk::SwitchEvent::
 sw_direc()
 {
     return sw_direc_;
+}
+
+int
+trk::SwitchEvent::
+value()
+{
+    return value_;
 }

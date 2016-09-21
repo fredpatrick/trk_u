@@ -44,7 +44,7 @@
 
 #include <string>
 
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventFactory.h"
 #include "EventDevice.h"
 #include "BreakEvent.h"
@@ -80,7 +80,7 @@ trk::EventFactory::
 get_next_event(EventDevice* efd)
 {
     InputEvent*  event;
-    EventBuffer* ebfr;
+    PacketBuffer* ebfr;
 
     try {
         ebfr = efd->read();

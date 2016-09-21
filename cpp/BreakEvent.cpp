@@ -43,7 +43,7 @@
  */
 
 #include "BreakEvent.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 
 #include <iostream>
@@ -51,7 +51,7 @@
 
 
 trk::BreakEvent::
-BreakEvent(EventBuffer* ebfr)
+BreakEvent(PacketBuffer* ebfr)
 {
     ebfr_ = ebfr;
     tag_  = "BRK";
@@ -65,7 +65,7 @@ BreakEvent(double      tm_event)
     tag_        = "BRK";
     tm_event_   = tm_event;
     event_seq_n_++;
-    ebfr_ = new EventBuffer(tag_);
+    ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
 }

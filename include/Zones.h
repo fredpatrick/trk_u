@@ -67,9 +67,10 @@ namespace trk {
 
             int         active_zones (TrackEvent* event);
             LAYOUT_STATE  current_state(TrackEvent* event);
-            void          print_log_entry(TrackEvent* event,
+            std::string   print_log_entry(TrackEvent* event,
                                           const LAYOUT_STATE& current_state);
-            void          print_log_header();
+            std::string   print_log_header();
+            std::string   print_scan_line(int n_item, int* values);
             std::string   zone_name(int i);
         private:
             std::map<std::string, int>         zone_indexes_;

@@ -42,45 +42,53 @@
  * 
  */
 
-#include "JobClock.h"
+#ifndef TRK_PACKETBUFFER_H
+#define TRK_PACKETBUFFER_H
+
 #include "trkutl.h"
-#include "SimpleSocketSrvr.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
+#include <string>
+#include <utility>
 
-using namespace trk;
+#define BFRMAX 100
 
-int main() {
+namespace trk {
+    class PacketBuffer
+    {
+        public:
+            PacketBuffer(const std::string& tag);
+            PacketBuffer(int                bfrlen,
+                        const char*        bfr);
+            ~PacketBuffer();
 
-    std::cout << "test program for sockets, server" <<std::endl;
+            void        reset();
 
-    JobClock* job_clock = trk::JobClock::instance();
-    std::cout << *job_clock << std::endl;
+            void        strdat(const std::string& sdat);
+            std::string strdat();
 
-    int socket_fd = 0;
-    std::string yesno = "";
-    yesno = get_yesno( "Create socket for TCP connection?" );
-    std::cout <<  "tstSocketSrvr: yesno = " << yesno << std::endl;
-    if ( yesno == "yes" ) {
-        std::cout << "tstSocketSrvr: Creating socket" << std::endl;
-        SimpleSocketSrvr* sckt = new SimpleSocketSrvr(17303);
-        socket_fd = sckt->ss_accept();
-        double t0 = job_clock->base_time();
-        int n;
-        n = write(socket_fd, &t0, sizeof(double) );
-        if ( n < 0 ) perror("write");
-        std::cout << "tstSocketSrvr, write t0 = " << t0 << std::endl;
-        double t1 = job_clock->job_time();
-        write(socket_fd, &t1, sizeof(double) );
-        if ( n < 0 ) perror("write");
-        std::cout << "tstSocketSrvr, write t1 = " << t1 << std::endl;
-    }
-    yesno = get_yesno("Close socket??" );
-    if (yesno != "never" ) {
-        close(socket_fd);
-    }
-    return 0;
+            void        intdat(int                idat);
+            int         intdat();
+
+            void        dbldat(double             ddat);
+            double      dbldat();
+
+            void        pairdat(std::pair<int,int> pdat);
+            std::pair<int, int> pairdat();
+
+            BLK_STATE    blkstate();
+            SW_DIRECTION swdirec();
+            TRK_STATE    trkstate();
+
+            std::string tag();
+            int         bfrlen();
+            char*       bfr();
+
+        private:
+            char        bfr_[BFRMAX];
+            std::string tag_;
+            int         bfrlen_;
+            int         bfrndx_;
+            char        ctag_[4];
+    };
+
 }
-
-
+#endif

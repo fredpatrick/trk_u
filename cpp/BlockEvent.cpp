@@ -43,14 +43,14 @@
  */
 
 #include "BlockEvent.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 
 #include <iostream>
 #include <unistd.h>
 
 trk::BlockEvent::
-BlockEvent(EventBuffer* ebfr)
+BlockEvent(PacketBuffer* ebfr)
 {
     ebfr_ = ebfr;
     tag_ = "BLK";
@@ -72,7 +72,7 @@ BlockEvent(double          tm_event,
     block_state_  = block_state;
     event_seq_n_++;
     print(50);
-    ebfr_ = new EventBuffer(tag_);
+    ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
     ebfr_->strdat(block_name_);

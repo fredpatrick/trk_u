@@ -43,6 +43,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 
 #include "LayoutConfig.h"
@@ -146,51 +147,70 @@ current_state(TrackEvent* event)
     return ls_[level + rot];
 }
 
-void
+std::string
 trk::Zones::
 print_log_header()
 {
-    std::cout << "  Time  ";
+    std::ostringstream ans;
+    ans << "  Time  ";
     for (int i = 0; i < zones_.size(); i++) {
-        std::cout << "| " << zones_[i]->zone_name() << "  ";
+        ans << "| " << zones_[i]->zone_name() << "  ";
     }
-    std::cout << std::endl;
+    ans << std::endl;
+    return ans.str();
 }
 
-void
+std::string
+trk::Zones::
+print_scan_line(int n_item, int* values)
+{
+    std::ostringstream ans;
+    ans << "        ";
+    for ( int i = 0; i < n_item; i++) {
+        TRK_STATE trk_state = (TRK_STATE)values[i];
+        ans << "| " << trk_state  << "  ";
+    }
+    ans << std::endl;
+    return ans.str();
+}
+
+std::string
 trk::Zones::
 print_log_entry(TrackEvent* event, const LAYOUT_STATE& current_state)
 {
-    std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
-    std::cout.precision(4);
+    std::ostringstream ans;
+
+    ans.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    ans.precision(4);
     std::string zone_name = event->zone_name();
     double      tm_event   = event->tm_event();
     TRK_STATE   trkstate  = event->track_state();
     int zone_index = zone_indexes_[zone_name];
-    std::cout << std::setw(8) << tm_event;
+    ans << std::setw(8) << tm_event;
     int n = zone_indexes_.size();
     for (int i = 0; i < n; i++ ) {
         if ( zone_index == i ) {
             if ( trkstate == BUSY ) {
-                std::cout << "| BUSY  ";
+                ans << "| BUSY  ";
             } else if ( trkstate == IDLE ) {
-                std::cout << "| IDLE  ";
+                ans << "| IDLE  ";
             } else {
-                std::cout << "|XXXXXXX";
+                ans << "|XXXXXXX";
             }
             continue;
         } 
         bool az = false;
         for (AZI p = active_indexes_.begin(); p != active_indexes_.end(); p++ ) {
             if ( p->second ==  i ) {
-                std::cout << "|   *   ";
+                ans << "|   *   ";
                 az = true;
             }
         }
-        if ( !az ) std::cout << "|       ";
+        if ( !az ) ans << "|       ";
     }
-    std::cout << "| " << current_state;
-    std::cout << std::endl;
+    ans << "| " << current_state;
+    ans << std::endl;
+    return ans.str();
 }
 
 std::string

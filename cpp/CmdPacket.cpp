@@ -43,10 +43,14 @@
  */
 
 #include <sstream>
+#include <string>
+#include <utility>
 #include "CmdPacket.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 #include "illegal_cmdpacket.h"
+
+int trk::CmdPacket::cmd_seqno_ = 0;
 
 trk::CmdPacket::
 CmdPacket(const std::string& command,
@@ -57,15 +61,17 @@ CmdPacket(const std::string& command,
     command_ = command;
     type_    = type;
     n_item_  = n_item;
+    cmd_seqno_++;
     items_   = new std::pair<int,int>[n_item];
-    cbfr_    = new EventBuffer(tag_);
-    cbfr_->strdat(command_);
+    cbfr_    = new PacketBuffer(tag_);
     cbfr_->strdat(type_);
+    cbfr_->strdat(command_);
+    cbfr_->intdat(cmd_seqno_);
     cbfr_->intdat(n_item_);
 }
 
 trk::CmdPacket::
-CmdPacket(EventBuffer* cbfr)
+CmdPacket(PacketBuffer* cbfr)
 {
     cbfr_    = cbfr;
     tag_     = cbfr_->tag();
@@ -74,10 +80,11 @@ CmdPacket(EventBuffer* cbfr)
         ost << "CmdPacket.ctor,  tag " << tag_;
         throw illegal_cmdpacket(ost.str() );
     }
-    command_ = cbfr_->strdat();
-    type_    = cbfr_->strdat();
-    n_item_  = cbfr_->intdat();
-    items_   = new std::pair<int,int>[n_item_];
+    type_      = cbfr_->strdat();
+    command_   = cbfr_->strdat();
+    cmd_seqno_ = cbfr_->intdat();
+    n_item_    = cbfr_->intdat();
+    items_     = new std::pair<int,int>[n_item_];
     for ( int i = 0; i < n_item_; i++) {
         items_[i] = cbfr_->pairdat();
     }
@@ -116,6 +123,13 @@ trk::CmdPacket::
 type()
 {
     return type_;
+}
+
+int
+trk::CmdPacket::
+cmd_seqno()
+{
+    return cmd_seqno_;
 }
 
 int

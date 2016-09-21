@@ -49,13 +49,13 @@
 
 namespace trk {
 
-class EventBuffer;
+class PacketBuffer;
 class EventDevice;
 
 class BreakEvent : public InputEvent
 {
     public:
-        BreakEvent(EventBuffer* ebfr);
+        BreakEvent(PacketBuffer* ebfr);
         BreakEvent(double tm_event);
 
         ~BreakEvent();
@@ -65,7 +65,7 @@ class BreakEvent : public InputEvent
         void              print(int ntab);
 
     private:
-        EventBuffer*    ebfr_;
+        PacketBuffer*    ebfr_;
 
 };
 

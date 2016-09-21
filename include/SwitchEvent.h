@@ -50,16 +50,17 @@
 
 namespace trk {
 
-class EventBuffer;
+class PacketBuffer;
 class EventDevice;
 
 class SwitchEvent : public InputEvent
 {
     public:
-        SwitchEvent(EventBuffer* ebfr);
+        SwitchEvent(PacketBuffer* ebfr);
         SwitchEvent(double       tm_event,
                     int          sw_num,
-                    SW_DIRECTION sw_direc);
+                    SW_DIRECTION sw_direc,
+                    int          value);
         ~SwitchEvent();
 
         int          write_event(EventDevice* efd);
@@ -67,10 +68,12 @@ class SwitchEvent : public InputEvent
 
         int          sw_num();
         SW_DIRECTION sw_direc();
+        int          value();
     private:
-        EventBuffer* ebfr_;
+        PacketBuffer* ebfr_;
         int          sw_num_;
         SW_DIRECTION sw_direc_;
+        int          value_;
 };
 
 }

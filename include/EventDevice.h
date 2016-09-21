@@ -48,7 +48,7 @@
 
 namespace trk
 {
-    class EventBuffer;
+    class PacketBuffer;
 
     class EventDevice
     {
@@ -56,8 +56,8 @@ namespace trk
             EventDevice();
             ~EventDevice();
 
-            virtual int          write(EventBuffer* ebf) = 0;
-            virtual EventBuffer* read() = 0;
+            virtual int          write(PacketBuffer* ebf) = 0;
+            virtual PacketBuffer* read() = 0;
     };
 }
 

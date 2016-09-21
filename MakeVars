@@ -13,10 +13,32 @@ ALL_LIB_DIRS   = $(TRK_U_LIB_DIR)
 
 TRK_U_VERSION     = $(shell tr b \. < $(TRK_U_DIR)/VERSION)
 
-CXX             = g++ 
-CXXFLAGS        = -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
+#CXX             = g++ 
+#CXX             = clang++ 
+ifeq ($(shell uname -s),linux)
+    CXX       = g++
+    CXXFLAGS        =   -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
+    LIBFLAGS        = -shared -fPIC
+    CONFLIBS        = -ldl -lm -lpthread
+    LDLIBS          = -L$(TRK_U_LIB_DIR) -ltrk_u$(TRK_U_VERSION) \
+                            $(CONFLIBS)
+
+else 
+    SDKDIR    = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk 
+    CXX       = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
+    CXXFLAGS  = -pipe -g -isysroot $(SDKDIR) -mmacosx-version-min=10.7 -Wall -W -fPIE
+    LFLAGS    = -headerpad_max_install_names -Wl,-syslibroot,$(SDKDIR) \
+                 -mmacosx-version-min=10.7 -Wl,-rpath,/Users/fredpatrick/Qt/5.4/clang_64/lib
+    LIBFLAGS  = -shared -fPIC $(LFLAGS)
+    LDFLAGS   = -headerpad_max_install_names -Wl,-syslibroot,$(SDKDIR) \
+                  -mmacosx-version-min=10.7 -Wl,-rpath,/Users/fredpatrick/Qt/5.4/clang_64/lib
+    LDLIBS    = $(SUBLIBS) -F/Users/fredpatrick/Qt/5.4/clang_64/lib \
+                      -L/Users/fredpatrick/wrk/trk_u/lib -ltrk_u0.0 \
+                      -framework QtWidgets -framework QtGui -framework QtCore \
+                      -framework DiskArbitration -framework IOKit \
+                      -framework QtNetwork -framework OpenGL -framework AGL
+endif
 INCFLAGS        = -I.  -I$(TRK_U_DIR)/include
-LIBFLAGS        = -shared -fPIC
 
 CPPFLAGS        =
 #CPP             = cpp -D__GNUC__
@@ -29,8 +51,4 @@ RM              = rm -f
 LN              = ln -f -s 
 IDIRCMD         = $(TRK_U_DIR)/admin/mkinstalldirs
 MAKE_DEPS       = $(TRK_U_DIR)/admin/DotHDeps
-CONFLIBS        = -ldl -lm -lpthread
-
-LDLIBS          = -L$(TRK_U_LIB_DIR) -ltrk_u$(TRK_U_VERSION) \
-                  $(CONFLIBS)
 

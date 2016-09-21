@@ -43,7 +43,7 @@
  */
 
 #include "EventPipe.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 
 #include <iostream>
 #include <string>
@@ -67,7 +67,7 @@ trk::EventPipe::
 
 int
 trk::EventPipe::
-write(EventBuffer* ebfr)
+write(PacketBuffer* ebfr)
 {
     int bfrlen = ebfr->bfrlen();
     char* bfr  = ebfr->bfr();
@@ -79,7 +79,7 @@ write(EventBuffer* ebfr)
     return ns;
 }
 
-trk::EventBuffer* 
+trk::PacketBuffer* 
 trk::EventPipe::
 read()
 {
@@ -90,7 +90,7 @@ read()
     char ctag[4];
     ::memcpy(ctag, bfr, 4);
     std::string tag = ctag;
-    EventBuffer* ebfr = new EventBuffer(bfrlen, bfr); 
+    PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
     delete[] bfr;
     return ebfr;
 }

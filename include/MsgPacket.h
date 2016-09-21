@@ -49,14 +49,14 @@
 #include <utility>
 
 namespace trk {
-    class EventBuffer;
+    class PacketBuffer;
     class EventDevice;
 
     class MsgPacket 
     {
         public:
             MsgPacket(const std::string& text);
-            MsgPacket(EventDevice* cmd_fd);
+            MsgPacket(PacketBuffer* cbfr);
             ~MsgPacket();
 
             void                write(EventDevice* cmd_fd);
@@ -65,7 +65,7 @@ namespace trk {
         private:
             std::string         tag_;
             std::string         text_;
-            EventBuffer*        cbfr_;
+            PacketBuffer*        cbfr_;
     };
 }
 

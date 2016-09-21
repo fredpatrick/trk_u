@@ -42,20 +42,20 @@
  * 
  */
 
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "enum_out_of_range.h"
 #include <string.h>
 
-trk::EventBuffer::
-EventBuffer(const std::string& tag)
+trk::PacketBuffer::
+PacketBuffer(const std::string& tag)
 {
     tag_    = tag;
     ::memcpy( bfr_, tag_.c_str(), tag_.length() +1 );
     bfrndx_ = tag_.length() + 1;;
 }
 
-trk::EventBuffer::
-EventBuffer(int                bfrlen,
+trk::PacketBuffer::
+PacketBuffer(int                bfrlen,
             const char*        bfr)
 {
     bfrlen_ = bfrlen;
@@ -66,41 +66,41 @@ EventBuffer(int                bfrlen,
     bfrndx_ += sizeof(ctag_);
 }
 
-trk::EventBuffer::
-~EventBuffer()
+trk::PacketBuffer::
+~PacketBuffer()
 {
 }
 
 void
-trk::EventBuffer::
+trk::PacketBuffer::
 reset()
 {
     bfrndx_ = sizeof(ctag_);;
 }
 
 std::string
-trk::EventBuffer::
+trk::PacketBuffer::
 tag()
 {
     return tag_;;
 }
 
 int
-trk::EventBuffer::
+trk::PacketBuffer::
 bfrlen()
 {
     return bfrlen_;
 }
 
 char*
-trk::EventBuffer::
+trk::PacketBuffer::
 bfr()
 {
     return bfr_;
 }
 
 void
-trk::EventBuffer::
+trk::PacketBuffer::
 strdat(const std::string& sdat)
 {
     int ls = sdat.length() + 1;
@@ -110,7 +110,7 @@ strdat(const std::string& sdat)
 }
 
 std::string
-trk::EventBuffer::
+trk::PacketBuffer::
 strdat()
 {
     int ls;
@@ -120,7 +120,7 @@ strdat()
 }
 
 void 
-trk::EventBuffer::
+trk::PacketBuffer::
 intdat(int i)
 {
     ::memcpy(&bfr_[bfrndx_], &i, sizeof(int) );
@@ -129,7 +129,7 @@ intdat(int i)
 }
 
 int
-trk::EventBuffer::
+trk::PacketBuffer::
 intdat()
 {
     int i;
@@ -139,7 +139,7 @@ intdat()
 }
     
 void
-trk::EventBuffer::
+trk::PacketBuffer::
 dbldat(double d)
 {
     ::memcpy(&bfr_[bfrndx_], &d, sizeof(double) );
@@ -148,7 +148,7 @@ dbldat(double d)
 }
 
 double
-trk::EventBuffer::
+trk::PacketBuffer::
 dbldat()
 {
     double d;
@@ -158,7 +158,7 @@ dbldat()
 }
 
 void
-trk::EventBuffer::
+trk::PacketBuffer::
 pairdat(std::pair<int, int> pdat)
 {
     ::memcpy(&bfr_[bfrndx_], &pdat.first  , sizeof(int) );
@@ -169,7 +169,7 @@ pairdat(std::pair<int, int> pdat)
 }
 
 std::pair<int, int>
-trk::EventBuffer::
+trk::PacketBuffer::
 pairdat()
 {
     std::pair<int, int> p;
@@ -181,7 +181,7 @@ pairdat()
 }
 
 trk::BLK_STATE
-trk::EventBuffer::
+trk::PacketBuffer::
 blkstate()
 {
     int b;
@@ -195,7 +195,7 @@ blkstate()
 }
 
 trk::TRK_STATE
-trk::EventBuffer::
+trk::PacketBuffer::
 trkstate()
 {
     int b;
@@ -209,7 +209,7 @@ trkstate()
 }
 
 trk::SW_DIRECTION
-trk::EventBuffer::
+trk::PacketBuffer::
 swdirec()
 {
     int b;

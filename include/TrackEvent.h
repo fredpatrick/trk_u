@@ -50,13 +50,13 @@
 
 namespace trk {
 
-class EventBuffer;
+class PacketBuffer;
 class EventDevice;
 
 class TrackEvent : public InputEvent
 {
     public:
-        TrackEvent(EventBuffer* ebfr);
+        TrackEvent(PacketBuffer* ebfr);
         TrackEvent(double tm_event,
                    const std::string& zone_name,
                    const TRK_STATE&   track_state);
@@ -67,7 +67,7 @@ class TrackEvent : public InputEvent
         std::string zone_name();
         TRK_STATE   track_state();
     private:
-        EventBuffer* ebfr_;
+        PacketBuffer* ebfr_;
         std::string zone_name_;
         TRK_STATE   track_state_;
 

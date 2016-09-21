@@ -44,7 +44,7 @@
 
 #include <sstream>
 #include "MsgPacket.h"
-#include "EventBuffer.h"
+#include "PacketBuffer.h"
 #include "EventDevice.h"
 #include "illegal_cmdpacket.h"
 
@@ -53,18 +53,18 @@ MsgPacket(const std::string& text)
 {
     tag_     = "MSG";
     text_    = text;
-    cbfr_    = new EventBuffer(tag_);
+    cbfr_    = new PacketBuffer(tag_);
     cbfr_->strdat(text_);
 }
 
 trk::MsgPacket::
-MsgPacket(EventDevice* cmd_fd)
+MsgPacket(PacketBuffer* cbfr)
 {
-    cbfr_    = cmd_fd->read();
+    cbfr_    = cbfr;
     tag_     = cbfr_->tag();
     if ( tag_ != "MSG" ) {
         std::stringstream ost;
-        ost << "MsgPacket.ctor, cmd_fd = " << cmd_fd << ", tag = " << tag_;
+        ost << "MsgPacket.ctor,  tag = " << tag_;
         throw illegal_cmdpacket( ost.str() );
     }
 

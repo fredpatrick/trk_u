@@ -50,13 +50,13 @@
 
 namespace trk {
 
-    class EventBuffer;
+    class PacketBuffer;
     class EventDevice;
 
     class BlockEvent : public InputEvent
     {
         public: 
-            BlockEvent(EventBuffer* ebfr);
+            BlockEvent(PacketBuffer* ebfr);
             BlockEvent(double             tm_event,
                        const std::string& block_name,
                        const BLK_STATE&   block_state);
@@ -68,7 +68,7 @@ namespace trk {
             BLK_STATE       block_state();
 
         private:
-            EventBuffer*        ebfr_;
+            PacketBuffer*        ebfr_;
             std::string         block_name_;
             BLK_STATE           block_state_;
     };

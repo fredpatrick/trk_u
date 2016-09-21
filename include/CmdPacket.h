@@ -49,7 +49,7 @@
 #include <utility>
 
 namespace trk {
-    class EventBuffer;
+    class PacketBuffer;
     class EventDevice;
 
     class CmdPacket 
@@ -58,12 +58,13 @@ namespace trk {
             CmdPacket(const std::string& command,
                       const std::string& type,
                       int                n_item);
-            CmdPacket(EventBuffer* cbfr);
+            CmdPacket(PacketBuffer* cbfr);
             ~CmdPacket();
 
             void                write(EventDevice* cmd_fd);
             std::string         command();
             std::string         type();
+            int                 cmd_seqno();
             int                 n_item();
             std::pair<int, int> item(int i);
             void                item(int i, std::pair<int, int> p);
@@ -72,8 +73,9 @@ namespace trk {
             std::string         command_;
             std::string         type_;
             int                 n_item_;
+            static int          cmd_seqno_;
             std::pair<int,int>* items_;
-            EventBuffer*        cbfr_;
+            PacketBuffer*        cbfr_;
     };
 }
 

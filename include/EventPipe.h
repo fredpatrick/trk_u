@@ -55,8 +55,8 @@ namespace trk
             EventPipe();
             ~EventPipe();
 
-            int          write(EventBuffer* ebfr);
-            EventBuffer* read();
+            int          write(PacketBuffer* ebfr);
+            PacketBuffer* read();
         private:
             int         event_fds_[2];
     };
