@@ -44,17 +44,33 @@ LayoutConfig::LayoutConfig(const std::string& cfgfil)
             std::string  blk_name;
             int          blk_index;
             from >> blk_name >> blk_index;
-            blk_names_[blk_name] = blk_index;
+            blk_map_[blk_name] = blk_index;
         }
     }
     from.close();
 }
 
-std::map<std::string, int>
+std::vector<std::string>
 trk::LayoutConfig::
 blk_names()
 {
-    return blk_names_;;
+    std::vector<std::string> blkns;
+    typedef std::map<std::string, int>::const_iterator CI;
+    for ( int i = 0; i < blk_map_.size(); i++ ) {
+        for ( CI p = blk_map_.begin(); p != blk_map_.end(); ++p) {
+            if ( p->second == i ) {
+                blkns.push_back(p->first);
+            }
+        }
+    }
+    return blkns;
+}
+
+std::map<std::string, int>
+trk::LayoutConfig::
+blk_map()
+{
+    return blk_map_;
 }
 
 std::map<std::string, int>

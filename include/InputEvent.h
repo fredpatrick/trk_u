@@ -55,7 +55,7 @@ class InputEvent
 {
     public:
         InputEvent();
-        ~InputEvent();
+        virtual ~InputEvent();
 
         virtual std::string     tag();
         virtual int     write_event(EventDevice* efd) = 0;

@@ -42,39 +42,58 @@
  * 
  */
 
-#ifndef TRK_LAYOUTCONFIG_HH
-#define TRK_LAYOUTCONFIG_HH
-
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <vector>
 #include <string>
+#include <iostream>
 
-namespace trk {
-    class LayoutConfig {
-        public: 
-            static LayoutConfig* instance();
+#include "DebugCntl.h"
 
-            ~LayoutConfig();
+trk::DebugCntl* trk::DebugCntl::instance_ = 0;
 
-            std::map<std::string, int> zone_indexes();
-            std::map<std::string, int> blk_map();
-            std::vector<std::string>   blk_names();
-
-            std::map<std::string, int> sw_names();
-        protected:
-            LayoutConfig(const std::string& cfgfil);
-        private:
-
-            std::map<std::string, int>        zone_indexes_;
-            std::map<std::string, int>        blk_map_;
-            std::map<std::string, int>        sw_names_;
-
-            static LayoutConfig* instance_;
-    };
-
+trk::DebugCntl*
+trk::DebugCntl::
+instance()
+{
+    if ( instance_ == 0 ) {
+        instance_ = new DebugCntl();
+    }
+    return instance_;
 }
 
-#endif
+trk::DebugCntl::
+DebugCntl()
+{
+    level_ = 0;
+}
+
+void
+trk::DebugCntl::
+parse_argv(int argc, char* argv[])
+{
+    for ( int i = 1; i < argc; i++ ) {
+        std::string arg = argv[i];
+        std::cout << "DebugCntl.parse_argv, arg = " << arg << std::endl;
+        std::string t(arg, 0, 6);
+        std::cout << "DebugCntl.parse_argv, t   = " << t   << std::endl;
+        if ( t == "-debug" ) {
+            std::string sl(arg,7, 1);
+            std::cout << "DebugCntl.parse_argv, sl  = " << sl  << std::endl;
+            level_ = ::atoi(sl.c_str() );
+            std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
+        }
+    }
+}
+
+bool
+trk::DebugCntl::
+check(int l)
+{
+    if (l <= level_ ) return true;
+    else              return false;
+}
+
+void
+trk::DebugCntl::level(int l)
+{
+    level_ = l;
+}

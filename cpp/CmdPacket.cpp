@@ -102,12 +102,15 @@ trk::CmdPacket::
 write( EventDevice* cmd_fd)
 {
     cbfr_->reset();
-    cbfr_->strdat(command_);
     cbfr_->strdat(type_);
+    cbfr_->strdat(command_);
+    cbfr_->intdat(cmd_seqno_);
     cbfr_->intdat(n_item_);
+    std::cout << "CmdPacket.write, n_item_ = " << n_item_ << std::endl;
     for ( int i = 0; i < n_item_; i++) {
         cbfr_->pairdat(items_[i]);
     }
+    std::cout << "CmdPacket.write, bfrlen = " << cbfr_->bfrlen() << std::endl;
     cmd_fd->write(cbfr_);
 }
 

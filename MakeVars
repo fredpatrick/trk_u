@@ -15,7 +15,7 @@ TRK_U_VERSION     = $(shell tr b \. < $(TRK_U_DIR)/VERSION)
 
 #CXX             = g++ 
 #CXX             = clang++ 
-ifeq ($(shell uname -s),linux)
+ifeq ($(shell uname -s),Linux)
     CXX       = g++
     CXXFLAGS        =   -fPIC -fexceptions -O -ftemplate-depth-40 -pthread
     LIBFLAGS        = -shared -fPIC

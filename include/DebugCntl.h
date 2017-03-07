@@ -42,39 +42,28 @@
  * 
  */
 
-#ifndef TRK_LAYOUTCONFIG_HH
-#define TRK_LAYOUTCONFIG_HH
+#ifndef TRK_DEBUGCNTL_HH
+#define TRK_DEBUGCNTL_HH
 
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <vector>
-#include <string>
+namespace trk
+{
+    class DebugCntl
+    {
+        public:
+            static DebugCntl* instance();
+            ~DebugCntl();
 
-namespace trk {
-    class LayoutConfig {
-        public: 
-            static LayoutConfig* instance();
+            void parse_argv(int argc, char* argv[]);
+            bool check(int l);
 
-            ~LayoutConfig();
+            void level(int l);
 
-            std::map<std::string, int> zone_indexes();
-            std::map<std::string, int> blk_map();
-            std::vector<std::string>   blk_names();
-
-            std::map<std::string, int> sw_names();
         protected:
-            LayoutConfig(const std::string& cfgfil);
+            DebugCntl();
+
         private:
-
-            std::map<std::string, int>        zone_indexes_;
-            std::map<std::string, int>        blk_map_;
-            std::map<std::string, int>        sw_names_;
-
-            static LayoutConfig* instance_;
+            int               level_;
+            static DebugCntl* instance_;
     };
-
 }
-
 #endif
