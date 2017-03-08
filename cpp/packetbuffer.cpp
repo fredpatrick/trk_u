@@ -42,7 +42,7 @@
  * 
  */
 
-#include "PacketBuffer.h"
+#include "packetbuffer.h"
 #include "enum_out_of_range.h"
 #include <string.h>
 

@@ -42,53 +42,78 @@
  * 
  */
 
-#include "BreakEvent.h"
-#include "PacketBuffer.h"
-#include "EventDevice.h"
+#include "blockevent.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
 
 #include <iostream>
 #include <unistd.h>
 
-
-trk::BreakEvent::
-BreakEvent(PacketBuffer* ebfr)
+trk::BlockEvent::
+BlockEvent(PacketBuffer* ebfr)
 {
     ebfr_ = ebfr;
-    tag_  = "BRK";
-    tm_event_       = ebfr_->dbldat();
-    event_seq_n_    = ebfr_->intdat();
+    tag_ = "BLK";
+
+    tm_event_     = ebfr_->dbldat();
+    event_seq_n_  = ebfr_->intdat();
+    block_name_   = ebfr_->strdat();
+    block_state_  = ebfr_->blkstate(); 
 }
 
-trk::BreakEvent::
-BreakEvent(double      tm_event)
+trk::BlockEvent::
+BlockEvent(double          tm_event,
+            const std::string& block_name,
+            const BLK_STATE&   block_state)
 {
-    tag_        = "BRK";
-    tm_event_   = tm_event;
+    tag_          = "BLK";
+    tm_event_     = tm_event;
+    block_name_   = block_name;
+    block_state_  = block_state;
     event_seq_n_++;
+    print(50);
     ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
+    ebfr_->strdat(block_name_);
+    ebfr_->intdat(block_state_);
 }
 
-trk::BreakEvent::
-~BreakEvent()
+trk::BlockEvent::
+~BlockEvent()
 {
     delete ebfr_;
 }
 
 int
-trk::BreakEvent::
+trk::BlockEvent::
 write_event(EventDevice* efd)
 {
-    int ns = efd->write(ebfr_);
-    return ns;
+    int ns;
+    return efd->write(ebfr_);
 }
 
 void
-trk::BreakEvent::
+trk::BlockEvent::
 print(int ntab)
 {
     std::cout.width(ntab);
     std::cout << "| ";
-    std::cout << "BreakEvent::" << event_seq_n_ << " - " << tm_event_ << std::endl;
+    std::cout << "BlockEvent::" << block_name_ << " - " << 
+                                 block_state_ <<  " - " << 
+                                 event_seq_n_ << " - " << tm_event_ << std::endl;
+}
+
+std::string
+trk::BlockEvent::
+block_name()
+{
+    return block_name_;
+}
+
+trk::BLK_STATE
+trk::BlockEvent::
+block_state()
+{
+    return block_state_;
 }

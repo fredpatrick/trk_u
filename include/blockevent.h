@@ -42,55 +42,36 @@
  * 
  */
 
-#include "EventPipe.h"
-#include "PacketBuffer.h"
+#ifndef TRK_BLOCKEVENT_HH
+#define TRK_BLOCKEVENT_HH
 
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
+#include "inputevent.h"
+#include "trkutl.h"
 
-trk::EventPipe::
-EventPipe()
-{
-    if ( ::pipe( event_fds_ ) == -1) {
-        perror("EventPipe- pipe" );
-        //throw ....
-    }
+namespace trk {
+
+    class PacketBuffer;
+    class EventDevice;
+
+    class BlockEvent : public InputEvent
+    {
+        public: 
+            BlockEvent(PacketBuffer* ebfr);
+            BlockEvent(double             tm_event,
+                       const std::string& block_name,
+                       const BLK_STATE&   block_state);
+            ~BlockEvent();
+
+            int             write_event(EventDevice* efd);
+            void            print(int ntab);
+            std::string     block_name();
+            BLK_STATE       block_state();
+
+        private:
+            PacketBuffer*        ebfr_;
+            std::string         block_name_;
+            BLK_STATE           block_state_;
+    };
 }
 
-trk::EventPipe::
-~EventPipe()
-{
-}
-
-int
-trk::EventPipe::
-write(PacketBuffer* ebfr)
-{
-    int bfrlen = ebfr->bfrlen();
-    char* bfr  = ebfr->bfr();
-    char ctag[4];
-    ::memcpy(ctag, bfr, 4);
-    std::string tag = ctag;
-    ::write( event_fds_[1], &bfrlen, sizeof(int) );
-    int ns = ::write( event_fds_[1], bfr, bfrlen);
-    return ns;
-}
-
-trk::PacketBuffer* 
-trk::EventPipe::
-read()
-{
-    int bfrlen;
-    int ns = ::read(event_fds_[0], &bfrlen, sizeof(int) );
-    char* bfr = new char[bfrlen];
-    ns = ::read(event_fds_[0], bfr, bfrlen  );
-    char ctag[4];
-    ::memcpy(ctag, bfr, 4);
-    std::string tag = ctag;
-    PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
-    delete[] bfr;
-    return ebfr;
-}
+#endif

@@ -46,10 +46,10 @@
 #include <sstream>
 #include <iomanip>
 
-#include "LayoutConfig.h"
-#include "Zones.h"
-#include "Zone.h"
-#include "TrackEvent.h"
+#include "layoutconfig.h"
+#include "zones.h"
+#include "zone.h"
+#include "trackevent.h"
 
 trk::Zones::
 Zones()

@@ -5,12 +5,12 @@
 include ../MakeVars
 
 
-lib: libtrk_u$(TRK_U_VERSION).so
+lib: libtrku$(TRKU_VERSION).so
 
-libtrk_u$(TRK_U_VERSION).so : $(wildcard ./objs/*.o)
+libtrku$(TRKU_VERSION).so : $(wildcard ./objs/*.o)
 	$(CXX) $(LIBFLAGS) -o $@ $(wildcard ./objs/*.o)
 
 clean: 
-	$(RM) libtrk_u$(TRK_U_VERSION).so
+	$(RM) libtrku$(TRKU_VERSION).so
 	$(RM) ./objs/*.o
 

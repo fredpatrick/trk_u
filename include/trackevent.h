@@ -42,15 +42,36 @@
  * 
  */
 
-#include "EventDevice.h"
+#ifndef TRK_TRACKEVENT_HH
+#define TRK_TRACKEVENT_HH
 
-trk::EventDevice::
-EventDevice()
+#include "inputevent.h"
+#include "trkutl.h"
+
+namespace trk {
+
+class PacketBuffer;
+class EventDevice;
+
+class TrackEvent : public InputEvent
 {
-}
+    public:
+        TrackEvent(PacketBuffer* ebfr);
+        TrackEvent(double tm_event,
+                   const std::string& zone_name,
+                   const TRK_STATE&   track_state);
+        ~TrackEvent();
 
-trk::EventDevice::
-~EventDevice()
-{
-}
+        int         write_event(EventDevice* efd);
+        void        print(int ntab);
+        std::string zone_name();
+        TRK_STATE   track_state();
+    private:
+        PacketBuffer* ebfr_;
+        std::string zone_name_;
+        TRK_STATE   track_state_;
 
+};
+
+}
+#endif

@@ -45,7 +45,7 @@
 #ifndef TRK_BREAKEVENT_HH
 #define TRK_BREAKEVENT_HH
 
-#include "InputEvent.h"
+#include "inputevent.h"
 
 namespace trk {
 

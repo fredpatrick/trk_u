@@ -42,66 +42,55 @@
  * 
  */
 
+#include "eventpipe.h"
+#include "packetbuffer.h"
+
+#include <iostream>
 #include <string>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
 
-#include "PacketBuffer.h"
-#include "EventFactory.h"
-#include "EventDevice.h"
-#include "BreakEvent.h"
-#include "BlockEvent.h"
-#include "SwitchEvent.h"
-#include "TrackEvent.h"
-#include "event_device_error.h"
-
-trk::EventFactory* trk::EventFactory::instance_ = 0;
-
-trk::EventFactory*
-trk::EventFactory::
-instance()
+trk::EventPipe::
+EventPipe()
 {
-    if ( !instance_ ) {
-        instance_ = new EventFactory();
+    if ( ::pipe( event_fds_ ) == -1) {
+        perror("EventPipe- pipe" );
+        //throw ....
     }
-    return instance_;
 }
 
-trk::EventFactory::
-EventFactory()
+trk::EventPipe::
+~EventPipe()
 {
 }
 
-trk::EventFactory::
-~EventFactory()
+int
+trk::EventPipe::
+write(PacketBuffer* ebfr)
 {
+    int bfrlen = ebfr->bfrlen();
+    char* bfr  = ebfr->bfr();
+    char ctag[4];
+    ::memcpy(ctag, bfr, 4);
+    std::string tag = ctag;
+    ::write( event_fds_[1], &bfrlen, sizeof(int) );
+    int ns = ::write( event_fds_[1], bfr, bfrlen);
+    return ns;
 }
 
-trk::InputEvent*
-trk::EventFactory::
-get_next_event(EventDevice* efd)
+trk::PacketBuffer* 
+trk::EventPipe::
+read()
 {
-    InputEvent*  event;
-    PacketBuffer* ebfr;
-
-    try {
-        ebfr = efd->read();
-    } catch (event_device_error r) {
-        std::cout << r.reason() << std::endl;
-        return 0;
-    }
-    std::string tag = ebfr->tag();
-
-    if        ( tag == "BRK" ) {
-        event = new BreakEvent(ebfr);
-    } else if ( tag == "BLK" ) {
-        event = new BlockEvent(ebfr);
-    } else if ( tag == "SW " ) {
-        event = new SwitchEvent(ebfr);
-    } else if ( tag == "TRK" ) {
-        event = new TrackEvent(ebfr);
-    } else {
-        std::cout << "EventFactory.get_next_event, invalid tag = " << tag << std::endl;
-        return 0;
-    }
-    return event;
+    int bfrlen;
+    int ns = ::read(event_fds_[0], &bfrlen, sizeof(int) );
+    char* bfr = new char[bfrlen];
+    ns = ::read(event_fds_[0], bfr, bfrlen  );
+    char ctag[4];
+    ::memcpy(ctag, bfr, 4);
+    std::string tag = ctag;
+    PacketBuffer* ebfr = new PacketBuffer(bfrlen, bfr); 
+    delete[] bfr;
+    return ebfr;
 }
-

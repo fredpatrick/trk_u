@@ -42,88 +42,40 @@
  * 
  */
 
-#include "SwitchEvent.h"
-#include "PacketBuffer.h"
-#include "EventDevice.h"
+#ifndef TRK_SWITCHEVENT_HH
+#define TRK_SWITCHEVENT_HH
 
-#include <iostream>
-#include <unistd.h>
+#include "inputevent.h"
+#include "trkutl.h"
 
-trk::SwitchEvent::
-SwitchEvent(PacketBuffer* ebfr)
+namespace trk {
+
+class PacketBuffer;
+class EventDevice;
+
+class SwitchEvent : public InputEvent
 {
-    tag_ = "SW ";
-    ebfr_ =ebfr;
-    tm_event_       = ebfr_->dbldat();
-    event_seq_n_    = ebfr_->intdat();
-    sw_num_         = ebfr_->intdat();
-    sw_direc_       = ebfr_->swdirec();
-    value_          = ebfr_->intdat();
+    public:
+        SwitchEvent(PacketBuffer* ebfr);
+        SwitchEvent(double       tm_event,
+                    int          sw_num,
+                    SW_DIRECTION sw_direc,
+                    int          value);
+        ~SwitchEvent();
+
+        int          write_event(EventDevice* efd);
+        void         print(int ntab);
+
+        int          sw_num();
+        SW_DIRECTION sw_direc();
+        int          value();
+    private:
+        PacketBuffer* ebfr_;
+        int          sw_num_;
+        SW_DIRECTION sw_direc_;
+        int          value_;
+};
+
 }
 
-trk::SwitchEvent::
-SwitchEvent(double          tm_event,
-            int             sw_num,
-            SW_DIRECTION    sw_direc,
-            int             value)
-{
-    tag_          = "SW ";
-    tm_event_     = tm_event;
-    sw_num_       = sw_num;
-    sw_direc_     = sw_direc;
-    value_        = value;
-    event_seq_n_++;
-    ebfr_ = new PacketBuffer(tag_);
-    ebfr_->dbldat(tm_event_);
-    ebfr_->intdat(event_seq_n_);
-    ebfr_->intdat(sw_num_);
-    ebfr_->intdat(sw_direc_);
-    ebfr_->intdat(value_);
-}
-
-trk::SwitchEvent::
-~SwitchEvent()
-{
-    delete ebfr_;
-}
-
-int
-trk::SwitchEvent::
-write_event(EventDevice* efd)
-{
-    int ns = efd->write(ebfr_);
-    return ns;
-}
-
-void
-trk::SwitchEvent::
-print(int ntab)
-{
-    std::cout.width(ntab);
-    std::cout << "| ";
-    std::cout << "SwitchEvent::" << sw_num_ << " - " << 
-                                 sw_direc_ <<  " - " << 
-                                 value_ << " - " <<
-                                 event_seq_n_ << " - " << tm_event_ << std::endl;
-}
-
-int
-trk::SwitchEvent::
-sw_num()
-{
-    return sw_num_;
-}
-
-trk::SW_DIRECTION
-trk::SwitchEvent::
-sw_direc()
-{
-    return sw_direc_;
-}
-
-int
-trk::SwitchEvent::
-value()
-{
-    return value_;
-}
+#endif

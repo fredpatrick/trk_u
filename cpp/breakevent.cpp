@@ -42,113 +42,53 @@
  * 
  */
 
-#include <sstream>
-#include <string>
-#include <utility>
-#include "CmdPacket.h"
-#include "PacketBuffer.h"
-#include "EventDevice.h"
-#include "illegal_cmdpacket.h"
+#include "breakevent.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
 
-int trk::CmdPacket::cmd_seqno_ = 0;
+#include <iostream>
+#include <unistd.h>
 
-trk::CmdPacket::
-CmdPacket(const std::string& command,
-          const std::string& type,
-          int                n_item)
+
+trk::BreakEvent::
+BreakEvent(PacketBuffer* ebfr)
 {
-    tag_     = "CMD";
-    command_ = command;
-    type_    = type;
-    n_item_  = n_item;
-    cmd_seqno_++;
-    items_   = new std::pair<int,int>[n_item];
-    cbfr_    = new PacketBuffer(tag_);
-    cbfr_->strdat(type_);
-    cbfr_->strdat(command_);
-    cbfr_->intdat(cmd_seqno_);
-    cbfr_->intdat(n_item_);
+    ebfr_ = ebfr;
+    tag_  = "BRK";
+    tm_event_       = ebfr_->dbldat();
+    event_seq_n_    = ebfr_->intdat();
 }
 
-trk::CmdPacket::
-CmdPacket(PacketBuffer* cbfr)
+trk::BreakEvent::
+BreakEvent(double      tm_event)
 {
-    cbfr_    = cbfr;
-    tag_     = cbfr_->tag();
-    if ( tag_ != "CMD" ) {
-        std::stringstream ost;
-        ost << "CmdPacket.ctor,  tag " << tag_;
-        throw illegal_cmdpacket(ost.str() );
-    }
-    type_      = cbfr_->strdat();
-    command_   = cbfr_->strdat();
-    cmd_seqno_ = cbfr_->intdat();
-    n_item_    = cbfr_->intdat();
-    items_     = new std::pair<int,int>[n_item_];
-    for ( int i = 0; i < n_item_; i++) {
-        items_[i] = cbfr_->pairdat();
-    }
+    tag_        = "BRK";
+    tm_event_   = tm_event;
+    event_seq_n_++;
+    ebfr_ = new PacketBuffer(tag_);
+    ebfr_->dbldat(tm_event_);
+    ebfr_->intdat(event_seq_n_);
 }
 
-trk::CmdPacket::
-~CmdPacket()
+trk::BreakEvent::
+~BreakEvent()
 {
-    delete[] items_;
-    delete   cbfr_;
-}
-
-void
-trk::CmdPacket::
-write( EventDevice* cmd_fd)
-{
-    cbfr_->reset();
-    cbfr_->strdat(command_);
-    cbfr_->strdat(type_);
-    cbfr_->intdat(n_item_);
-    for ( int i = 0; i < n_item_; i++) {
-        cbfr_->pairdat(items_[i]);
-    }
-    cmd_fd->write(cbfr_);
-}
-
-std::string
-trk::CmdPacket::
-command()
-{
-    return command_;
-}
-
-std::string
-trk::CmdPacket::
-type()
-{
-    return type_;
+    delete ebfr_;
 }
 
 int
-trk::CmdPacket::
-cmd_seqno()
+trk::BreakEvent::
+write_event(EventDevice* efd)
 {
-    return cmd_seqno_;
-}
-
-int
-trk::CmdPacket::
-n_item()
-{
-    return n_item_;
-}
-
-std::pair<int, int>
-trk::CmdPacket::
-item(int i)
-{
-    return items_[i];
+    int ns = efd->write(ebfr_);
+    return ns;
 }
 
 void
-trk::CmdPacket::
-item(int i, std::pair<int, int> p)
+trk::BreakEvent::
+print(int ntab)
 {
-    items_[i] = p;
+    std::cout.width(ntab);
+    std::cout << "| ";
+    std::cout << "BreakEvent::" << event_seq_n_ << " - " << tm_event_ << std::endl;
 }

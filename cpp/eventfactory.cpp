@@ -42,36 +42,66 @@
  * 
  */
 
-#ifndef TRK_TRACKEVENT_HH
-#define TRK_TRACKEVENT_HH
+#include <string>
 
-#include "InputEvent.h"
-#include "trkutl.h"
+#include "packetbuffer.h"
+#include "eventfactory.h"
+#include "eventdevice.h"
+#include "breakevent.h"
+#include "blockevent.h"
+#include "switchevent.h"
+#include "trackevent.h"
+#include "event_device_error.h"
 
-namespace trk {
+trk::EventFactory* trk::EventFactory::instance_ = 0;
 
-class PacketBuffer;
-class EventDevice;
-
-class TrackEvent : public InputEvent
+trk::EventFactory*
+trk::EventFactory::
+instance()
 {
-    public:
-        TrackEvent(PacketBuffer* ebfr);
-        TrackEvent(double tm_event,
-                   const std::string& zone_name,
-                   const TRK_STATE&   track_state);
-        ~TrackEvent();
-
-        int         write_event(EventDevice* efd);
-        void        print(int ntab);
-        std::string zone_name();
-        TRK_STATE   track_state();
-    private:
-        PacketBuffer* ebfr_;
-        std::string zone_name_;
-        TRK_STATE   track_state_;
-
-};
-
+    if ( !instance_ ) {
+        instance_ = new EventFactory();
+    }
+    return instance_;
 }
-#endif
+
+trk::EventFactory::
+EventFactory()
+{
+}
+
+trk::EventFactory::
+~EventFactory()
+{
+}
+
+trk::InputEvent*
+trk::EventFactory::
+get_next_event(EventDevice* efd)
+{
+    InputEvent*  event;
+    PacketBuffer* ebfr;
+
+    try {
+        ebfr = efd->read();
+    } catch (event_device_error r) {
+        std::cout << r.reason() << std::endl;
+        return 0;
+    }
+    std::string tag = ebfr->tag();
+
+    if        ( tag == "BRK" ) {
+        event = new BreakEvent(ebfr);
+    } else if ( tag == "BLK" ) {
+        event = new BlockEvent(ebfr);
+    } else if ( tag == "SW " ) {
+        event = new SwitchEvent(ebfr);
+    } else if ( tag == "TRK" ) {
+        event = new TrackEvent(ebfr);
+    } else {
+        std::cout << "EventFactory.get_next_event, invalid tag = " << tag << std::endl;
+        return 0;
+    }
+    return event;
+}
+

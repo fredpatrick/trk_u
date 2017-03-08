@@ -41,59 +41,75 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+#include <iostream>
+#include <unistd.h>
 
-#include <sstream>
-#include "MsgPacket.h"
-#include "PacketBuffer.h"
-#include "EventDevice.h"
-#include "illegal_cmdpacket.h"
+#include "trackevent.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
 
-trk::MsgPacket::
-MsgPacket(const std::string& text)
+trk::TrackEvent::
+TrackEvent(PacketBuffer* ebfr)
 {
-    tag_     = "MSG";
-    text_    = text;
-    cbfr_    = new PacketBuffer(tag_);
-    cbfr_->strdat(text_);
+    ebfr_ = ebfr;
+    tag_ = "TRK";
+
+    tm_event_    = ebfr_->dbldat();
+    event_seq_n_ = ebfr_->intdat();
+    zone_name_   = ebfr_->strdat();
+    track_state_ = ebfr_->trkstate();
 }
 
-trk::MsgPacket::
-MsgPacket(PacketBuffer* cbfr)
+trk::TrackEvent::
+TrackEvent(double          tm_event,
+            const std::string& zone_name,
+            const TRK_STATE&   track_state)
 {
-    cbfr_    = cbfr;
-    tag_     = cbfr_->tag();
-    if ( tag_ != "MSG" ) {
-        std::stringstream ost;
-        ost << "MsgPacket.ctor,  tag = " << tag_;
-        throw illegal_cmdpacket( ost.str() );
-    }
-
-    text_    = cbfr_->strdat();
+    tag_         = "TRK";
+    tm_event_    = tm_event;
+    zone_name_   = zone_name;
+    track_state_ = track_state;
+    event_seq_n_++;
+    ebfr_ = new PacketBuffer(tag_);
+    ebfr_->dbldat(tm_event_);
+    ebfr_->intdat(event_seq_n_);
+    ebfr_->strdat(zone_name_);
+    ebfr_->intdat(track_state_);
 }
 
-trk::MsgPacket::
-~MsgPacket()
+trk::TrackEvent::
+~TrackEvent()
 {
-    delete   cbfr_;
+    delete ebfr_;
+}
+int
+trk::TrackEvent::
+write_event(EventDevice* efd)
+{
+    int ns = efd->write(ebfr_);
+    return ns;
 }
 
 void
-trk::MsgPacket::
-write( EventDevice* cmd_fd)
+trk::TrackEvent::
+print(int ntab)
 {
-    cmd_fd->write(cbfr_);
-}
-
-void
-trk::MsgPacket::
-read( EventDevice* cmd_fd)
-{
-    cbfr_ = cmd_fd->read();
+    std::cout.width(ntab);
+    std::cout << "| ";
+    std::cout << "TrackEvent::" << zone_name_ << " - " << 
+                          track_state_ <<  " - " << event_seq_n_ << " - "<< tm_event_ << std::endl;
 }
 
 std::string
-trk::MsgPacket::
-text()
+trk::TrackEvent::
+zone_name()
 {
-    return text_;
+    return zone_name_;
+}
+
+trk::TRK_STATE
+trk::TrackEvent::
+track_state()
+{
+    return track_state_;
 }

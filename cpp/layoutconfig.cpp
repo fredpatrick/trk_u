@@ -42,58 +42,74 @@
  * 
  */
 
-#include "JobClock.h"
+#include <iostream>
+#include "layoutconfig.h"
 
-trk::JobClock* trk::JobClock::instance_ = 0;
+trk::LayoutConfig* trk::LayoutConfig::instance_ = 0;
 
-trk::JobClock*
+trk::LayoutConfig*
 trk::
-JobClock::instance()
+LayoutConfig::instance()
 {
-    if( !instance_ ) {
-        instance_ = new JobClock();
+    std::string cfgfil = "./layout_config";
+    if ( !instance_ ) {
+        instance_ = new LayoutConfig(cfgfil);
     }
     return instance_;
 }
 
-trk::JobClock::
-JobClock()
+trk::
+LayoutConfig::LayoutConfig(const std::string& cfgfil)
 {
-    timeval t;
-    gettimeofday(&t, NULL);
+    std::ifstream from(cfgfil.c_str() );
+//  std::cout << "LayoutConfig::LayoutConfig " << cfgfil << " opened" << std::endl;
+    char        cline[120];
 
-    t0_ = t.tv_sec + t.tv_usec * 1.0e-06;
-    std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
-    std::cout << "JobClock.ctor, t0_ = " << t0_ << std::endl;
+    while (!from.eof() ) {
+        std::string tag = "";
+        from >> tag;
+        if ( !from.good() ) {
+            break;
+        }
+        if  (tag[0] == '#' ) {
+            from.getline(cline, 120);
+        } else if ( tag == "SW")   {
+            std::string sw_name;
+            int         sw_num;
+            from >> sw_name >> sw_num;
+            sw_names_[sw_name] = sw_num;
+        } else if ( tag == "TRK")  {
+            std::string zone_name;
+            int    zone_index;
+            from >> zone_name >> zone_index;
+            zone_indexes_[zone_name] = zone_index;
+        } else if ( tag == "BLK" ) {
+            std::string  blk_name;
+            int          blk_index;
+            from >> blk_name >> blk_index;
+            blk_names_[blk_name] = blk_index;
+        }
+    }
+    from.close();
 }
 
-trk::JobClock::
-~JobClock()
+std::map<std::string, int>
+trk::LayoutConfig::
+blk_names()
 {
+    return blk_names_;;
 }
 
-double
-trk::JobClock::
-job_time()
+std::map<std::string, int>
+trk::LayoutConfig::
+zone_indexes()
 {
-    timeval t;
-    gettimeofday(&t, NULL);
-
-    double tm = t.tv_sec + t.tv_usec * 1.0e-06;
-    return tm - t0_;
+    return zone_indexes_;;
 }
 
-double
-trk::JobClock::
-base_time()
+std::map<std::string, int>
+trk::LayoutConfig::
+sw_names()
 {
-    return t0_;
+    return sw_names_;;
 }
-
-std::ostream&
-operator<<(std::ostream& ostrm, trk::JobClock& job_clock)
-{
-    ostrm << job_clock.job_time();
-    return ostrm;
-}
-

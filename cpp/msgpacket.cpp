@@ -42,40 +42,58 @@
  * 
  */
 
-#include "InputEvent.h"
+#include <sstream>
+#include "msgpacket.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
+#include "illegal_cmdpacket.h"
 
-#include <iostream>
-#include <unistd.h>
-
-int trk::InputEvent::event_seq_n_ = 0;
-
-trk::InputEvent::
-InputEvent()
+trk::MsgPacket::
+MsgPacket(const std::string& text)
 {
+    tag_     = "MSG";
+    text_    = text;
+    cbfr_    = new PacketBuffer(tag_);
+    cbfr_->strdat(text_);
 }
 
-trk::InputEvent::
-~InputEvent()
+trk::MsgPacket::
+MsgPacket(PacketBuffer* cbfr)
 {
+    cbfr_    = cbfr;
+    tag_     = cbfr_->tag();
+    if ( tag_ != "MSG" ) {
+        std::stringstream ost;
+        ost << "MsgPacket.ctor,  tag = " << tag_;
+        throw illegal_cmdpacket( ost.str() );
+    }
+
+    text_    = cbfr_->strdat();
+}
+
+trk::MsgPacket::
+~MsgPacket()
+{
+    delete   cbfr_;
+}
+
+void
+trk::MsgPacket::
+write( EventDevice* cmd_fd)
+{
+    cmd_fd->write(cbfr_);
+}
+
+void
+trk::MsgPacket::
+read( EventDevice* cmd_fd)
+{
+    cbfr_ = cmd_fd->read();
 }
 
 std::string
-trk::InputEvent::
-tag()
+trk::MsgPacket::
+text()
 {
-    return tag_;
-}
-
-double
-trk::InputEvent::
-tm_event()
-{
-    return tm_event_;
-}
-
-int
-trk::InputEvent::
-event_seq_n()
-{
-    return event_seq_n_;
+    return text_;
 }

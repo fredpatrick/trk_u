@@ -42,23 +42,15 @@
  * 
  */
 
-#include "Zone.h"
-#include <iostream>
+#include "eventdevice.h"
 
-trk::
-Zone::Zone(const std::string& zone_name)
-{
-    zone_name_ = zone_name;
-}
-
-trk::Zone::
-~Zone()
+trk::EventDevice::
+EventDevice()
 {
 }
 
-std::string
-trk::Zone::
-zone_name()
+trk::EventDevice::
+~EventDevice()
 {
-    return zone_name_;
 }
+

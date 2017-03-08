@@ -41,75 +41,112 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-#include <iostream>
-#include <unistd.h>
 
-#include "TrackEvent.h"
-#include "PacketBuffer.h"
-#include "EventDevice.h"
+#include <sstream>
+#include "cmdpacket.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
+#include "illegal_cmdpacket.h"
 
-trk::TrackEvent::
-TrackEvent(PacketBuffer* ebfr)
+int trk::CmdPacket::cmd_seqno_ = 0;
+
+trk::CmdPacket::
+CmdPacket(const std::string& command,
+          const std::string& type,
+          int                n_item)
 {
-    ebfr_ = ebfr;
-    tag_ = "TRK";
-
-    tm_event_    = ebfr_->dbldat();
-    event_seq_n_ = ebfr_->intdat();
-    zone_name_   = ebfr_->strdat();
-    track_state_ = ebfr_->trkstate();
+    tag_     = "CMD";
+    command_ = command;
+    type_    = type;
+    n_item_  = n_item;
+    cmd_seqno_++;
+    items_   = new std::pair<int,int>[n_item];
+    cbfr_    = new PacketBuffer(tag_);
+    cbfr_->strdat(type_);
+    cbfr_->strdat(command_);
+    cbfr_->intdat(cmd_seqno_);
+    cbfr_->intdat(n_item_);
 }
 
-trk::TrackEvent::
-TrackEvent(double          tm_event,
-            const std::string& zone_name,
-            const TRK_STATE&   track_state)
+trk::CmdPacket::
+CmdPacket(PacketBuffer* cbfr)
 {
-    tag_         = "TRK";
-    tm_event_    = tm_event;
-    zone_name_   = zone_name;
-    track_state_ = track_state;
-    event_seq_n_++;
-    ebfr_ = new PacketBuffer(tag_);
-    ebfr_->dbldat(tm_event_);
-    ebfr_->intdat(event_seq_n_);
-    ebfr_->strdat(zone_name_);
-    ebfr_->intdat(track_state_);
+    cbfr_    = cbfr;
+    tag_     = cbfr_->tag();
+    if ( tag_ != "CMD" ) {
+        std::stringstream ost;
+        ost << "CmdPacket.ctor,  tag " << tag_;
+        throw illegal_cmdpacket(ost.str() );
+    }
+    type_      = cbfr_->strdat();
+    command_   = cbfr_->strdat();
+    cmd_seqno_ = cbfr_->intdat();
+    n_item_    = cbfr_->intdat();
+    items_     = new std::pair<int,int>[n_item_];
+    for ( int i = 0; i < n_item_; i++) {
+        items_[i] = cbfr_->pairdat();
+    }
 }
 
-trk::TrackEvent::
-~TrackEvent()
+trk::CmdPacket::
+~CmdPacket()
 {
-    delete ebfr_;
-}
-int
-trk::TrackEvent::
-write_event(EventDevice* efd)
-{
-    int ns = efd->write(ebfr_);
-    return ns;
+    delete[] items_;
+    delete   cbfr_;
 }
 
 void
-trk::TrackEvent::
-print(int ntab)
+trk::CmdPacket::
+write( EventDevice* cmd_fd)
 {
-    std::cout.width(ntab);
-    std::cout << "| ";
-    std::cout << "TrackEvent::" << zone_name_ << " - " << 
-                          track_state_ <<  " - " << event_seq_n_ << " - "<< tm_event_ << std::endl;
+    cbfr_->reset();
+    cbfr_->strdat(command_);
+    cbfr_->strdat(type_);
+    cbfr_->intdat(n_item_);
+    for ( int i = 0; i < n_item_; i++) {
+        cbfr_->pairdat(items_[i]);
+    }
+    cmd_fd->write(cbfr_);
 }
 
 std::string
-trk::TrackEvent::
-zone_name()
+trk::CmdPacket::
+command()
 {
-    return zone_name_;
+    return command_;
 }
 
-trk::TRK_STATE
-trk::TrackEvent::
-track_state()
+std::string
+trk::CmdPacket::
+type()
 {
-    return track_state_;
+    return type_;
+}
+
+int
+trk::CmdPacket::
+cmd_seqno()
+{
+    return cmd_seqno_;
+}
+
+int
+trk::CmdPacket::
+n_item()
+{
+    return n_item_;
+}
+
+std::pair<int, int>
+trk::CmdPacket::
+item(int i)
+{
+    return items_[i];
+}
+
+void
+trk::CmdPacket::
+item(int i, std::pair<int, int> p)
+{
+    items_[i] = p;
 }

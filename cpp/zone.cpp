@@ -42,36 +42,23 @@
  * 
  */
 
-#ifndef TRK_BLOCKEVENT_HH
-#define TRK_BLOCKEVENT_HH
+#include "zone.h"
+#include <iostream>
 
-#include "InputEvent.h"
-#include "trkutl.h"
-
-namespace trk {
-
-    class PacketBuffer;
-    class EventDevice;
-
-    class BlockEvent : public InputEvent
-    {
-        public: 
-            BlockEvent(PacketBuffer* ebfr);
-            BlockEvent(double             tm_event,
-                       const std::string& block_name,
-                       const BLK_STATE&   block_state);
-            ~BlockEvent();
-
-            int             write_event(EventDevice* efd);
-            void            print(int ntab);
-            std::string     block_name();
-            BLK_STATE       block_state();
-
-        private:
-            PacketBuffer*        ebfr_;
-            std::string         block_name_;
-            BLK_STATE           block_state_;
-    };
+trk::
+Zone::Zone(const std::string& zone_name)
+{
+    zone_name_ = zone_name;
 }
 
-#endif
+trk::Zone::
+~Zone()
+{
+}
+
+std::string
+trk::Zone::
+zone_name()
+{
+    return zone_name_;
+}

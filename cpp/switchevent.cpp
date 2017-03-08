@@ -42,23 +42,88 @@
  * 
  */
 
-#ifndef TRK_EVENTPIPE_HH
-#define TRK_EVENTPIPE_HH
+#include "switchevent.h"
+#include "packetbuffer.h"
+#include "eventdevice.h"
 
-#include "EventDevice.h"
+#include <iostream>
+#include <unistd.h>
 
-namespace trk
+trk::SwitchEvent::
+SwitchEvent(PacketBuffer* ebfr)
 {
-    class EventPipe: public EventDevice
-    {
-        public:
-            EventPipe();
-            ~EventPipe();
-
-            int          write(PacketBuffer* ebfr);
-            PacketBuffer* read();
-        private:
-            int         event_fds_[2];
-    };
+    tag_ = "SW ";
+    ebfr_ =ebfr;
+    tm_event_       = ebfr_->dbldat();
+    event_seq_n_    = ebfr_->intdat();
+    sw_num_         = ebfr_->intdat();
+    sw_direc_       = ebfr_->swdirec();
+    value_          = ebfr_->intdat();
 }
- #endif
+
+trk::SwitchEvent::
+SwitchEvent(double          tm_event,
+            int             sw_num,
+            SW_DIRECTION    sw_direc,
+            int             value)
+{
+    tag_          = "SW ";
+    tm_event_     = tm_event;
+    sw_num_       = sw_num;
+    sw_direc_     = sw_direc;
+    value_        = value;
+    event_seq_n_++;
+    ebfr_ = new PacketBuffer(tag_);
+    ebfr_->dbldat(tm_event_);
+    ebfr_->intdat(event_seq_n_);
+    ebfr_->intdat(sw_num_);
+    ebfr_->intdat(sw_direc_);
+    ebfr_->intdat(value_);
+}
+
+trk::SwitchEvent::
+~SwitchEvent()
+{
+    delete ebfr_;
+}
+
+int
+trk::SwitchEvent::
+write_event(EventDevice* efd)
+{
+    int ns = efd->write(ebfr_);
+    return ns;
+}
+
+void
+trk::SwitchEvent::
+print(int ntab)
+{
+    std::cout.width(ntab);
+    std::cout << "| ";
+    std::cout << "SwitchEvent::" << sw_num_ << " - " << 
+                                 sw_direc_ <<  " - " << 
+                                 value_ << " - " <<
+                                 event_seq_n_ << " - " << tm_event_ << std::endl;
+}
+
+int
+trk::SwitchEvent::
+sw_num()
+{
+    return sw_num_;
+}
+
+trk::SW_DIRECTION
+trk::SwitchEvent::
+sw_direc()
+{
+    return sw_direc_;
+}
+
+int
+trk::SwitchEvent::
+value()
+{
+    return value_;
+}
