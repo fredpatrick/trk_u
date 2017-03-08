@@ -49,6 +49,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "trkutl.h"
+#include "enum_out_of_range.h"
 
 std::string
 trk::get_yesno( const std::string& question ) 
@@ -150,11 +151,13 @@ trk::operator<<( std::ostream& ostrm, const trk::SW_DIRECTION& idirec)
     else if ( idirec == trk::NOVAL)  ostrm << "NOVAL ";
     return ostrm;
 }
+
+
 std::ostream&
 trk::operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate)
 {
-    if      ( trkstate == trk::IDLE) ostrm << " IDLE";
-    else if ( trkstate == trk::BUSY) ostrm << " BUSY ";
+    if      ( trkstate == trk::IDLE) ostrm << "IDLE";
+    else if ( trkstate == trk::BUSY) ostrm << "BUSY";
     return ostrm;
 }
 
@@ -200,3 +203,15 @@ trk::operator<<( std::ostream& ostrm, const trk::SWKey& key)
     ostrm << "trk::SWKey: " << key.num << '\t' << key.swd;
     return ostrm;
 }
+
+trk::SW_DIRECTION
+trk::to_swstate(int i)
+{
+    if (      i == 0 ) return trk::THRU;
+    else if ( i == 1 ) return trk::OUT;
+    else if ( i == 2 ) return trk::NOVAL;
+    else {
+        throw enum_out_of_range ("swdirec");
+    }
+}
+

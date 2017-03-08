@@ -42,114 +42,28 @@
  * 
  */
 
-#include <sstream>
-#include "cmdpacket.h"
-#include "packetbuffer.h"
-#include "eventdevice.h"
-#include "illegal_cmdpacket.h"
+#ifndef TRK_DEBUGCNTL_HH
+#define TRK_DEBUGCNTL_HH
 
-int trk::CmdPacket::cmd_seqno_ = 0;
-
-trk::CmdPacket::
-CmdPacket(const std::string& command,
-          const std::string& type,
-          int                n_item)
+namespace trk
 {
-    tag_     = "CMD";
-    command_ = command;
-    type_    = type;
-    n_item_  = n_item;
-    cmd_seqno_++;
-    items_   = new std::pair<int,int>[n_item];
-    cbfr_    = new PacketBuffer(tag_);
-    cbfr_->strdat(type_);
-    cbfr_->strdat(command_);
-    cbfr_->intdat(cmd_seqno_);
-    cbfr_->intdat(n_item_);
-}
+    class DebugCntl
+    {
+        public:
+            static DebugCntl* instance();
+            ~DebugCntl();
 
-trk::CmdPacket::
-CmdPacket(PacketBuffer* cbfr)
-{
-    cbfr_    = cbfr;
-    tag_     = cbfr_->tag();
-    if ( tag_ != "CMD" ) {
-        std::stringstream ost;
-        ost << "CmdPacket.ctor,  tag " << tag_;
-        throw illegal_cmdpacket(ost.str() );
-    }
-    type_      = cbfr_->strdat();
-    command_   = cbfr_->strdat();
-    cmd_seqno_ = cbfr_->intdat();
-    n_item_    = cbfr_->intdat();
-    items_     = new std::pair<int,int>[n_item_];
-    for ( int i = 0; i < n_item_; i++) {
-        items_[i] = cbfr_->pairdat();
-    }
-}
+            void parse_argv(int argc, char* argv[]);
+            bool check(int l);
 
-trk::CmdPacket::
-~CmdPacket()
-{
-    delete[] items_;
-    delete   cbfr_;
-}
+            void level(int l);
 
-void
-trk::CmdPacket::
-write( EventDevice* cmd_fd)
-{
-    cbfr_->reset();
-    cbfr_->strdat(type_);
-    cbfr_->strdat(command_);
-    cbfr_->intdat(cmd_seqno_);
-    cbfr_->intdat(n_item_);
-    std::cout << "CmdPacket.write, n_item_ = " << n_item_ << std::endl;
-    for ( int i = 0; i < n_item_; i++) {
-        cbfr_->pairdat(items_[i]);
-    }
-    std::cout << "CmdPacket.write, bfrlen = " << cbfr_->bfrlen() << std::endl;
-    cmd_fd->write(cbfr_);
-}
+        protected:
+            DebugCntl();
 
-std::string
-trk::CmdPacket::
-command()
-{
-    return command_;
+        private:
+            int               level_;
+            static DebugCntl* instance_;
+    };
 }
-
-std::string
-trk::CmdPacket::
-type()
-{
-    return type_;
-}
-
-int
-trk::CmdPacket::
-cmd_seqno()
-{
-    return cmd_seqno_;
-}
-
-int
-trk::CmdPacket::
-n_item()
-{
-    return n_item_;
-}
-
-std::pair<int, int>
-trk::CmdPacket::
-item(int i)
-{
-    return items_[i];
-}
-
-void
-trk::CmdPacket::
-item(int i, std::pair<int, int> p)
-{
-    items_[i] = p;
-}
+#endif

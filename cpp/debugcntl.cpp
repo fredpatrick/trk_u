@@ -42,114 +42,58 @@
  * 
  */
 
-#include <sstream>
-#include "cmdpacket.h"
-#include "packetbuffer.h"
-#include "eventdevice.h"
-#include "illegal_cmdpacket.h"
+#include <stdlib.h>
+#include <string>
+#include <iostream>
 
-int trk::CmdPacket::cmd_seqno_ = 0;
+#include "debugcntl.h"
 
-trk::CmdPacket::
-CmdPacket(const std::string& command,
-          const std::string& type,
-          int                n_item)
+trk::DebugCntl* trk::DebugCntl::instance_ = 0;
+
+trk::DebugCntl*
+trk::DebugCntl::
+instance()
 {
-    tag_     = "CMD";
-    command_ = command;
-    type_    = type;
-    n_item_  = n_item;
-    cmd_seqno_++;
-    items_   = new std::pair<int,int>[n_item];
-    cbfr_    = new PacketBuffer(tag_);
-    cbfr_->strdat(type_);
-    cbfr_->strdat(command_);
-    cbfr_->intdat(cmd_seqno_);
-    cbfr_->intdat(n_item_);
+    if ( instance_ == 0 ) {
+        instance_ = new DebugCntl();
+    }
+    return instance_;
 }
 
-trk::CmdPacket::
-CmdPacket(PacketBuffer* cbfr)
+trk::DebugCntl::
+DebugCntl()
 {
-    cbfr_    = cbfr;
-    tag_     = cbfr_->tag();
-    if ( tag_ != "CMD" ) {
-        std::stringstream ost;
-        ost << "CmdPacket.ctor,  tag " << tag_;
-        throw illegal_cmdpacket(ost.str() );
-    }
-    type_      = cbfr_->strdat();
-    command_   = cbfr_->strdat();
-    cmd_seqno_ = cbfr_->intdat();
-    n_item_    = cbfr_->intdat();
-    items_     = new std::pair<int,int>[n_item_];
-    for ( int i = 0; i < n_item_; i++) {
-        items_[i] = cbfr_->pairdat();
-    }
-}
-
-trk::CmdPacket::
-~CmdPacket()
-{
-    delete[] items_;
-    delete   cbfr_;
+    level_ = 0;
 }
 
 void
-trk::CmdPacket::
-write( EventDevice* cmd_fd)
+trk::DebugCntl::
+parse_argv(int argc, char* argv[])
 {
-    cbfr_->reset();
-    cbfr_->strdat(type_);
-    cbfr_->strdat(command_);
-    cbfr_->intdat(cmd_seqno_);
-    cbfr_->intdat(n_item_);
-    std::cout << "CmdPacket.write, n_item_ = " << n_item_ << std::endl;
-    for ( int i = 0; i < n_item_; i++) {
-        cbfr_->pairdat(items_[i]);
+    for ( int i = 1; i < argc; i++ ) {
+        std::string arg = argv[i];
+        std::cout << "DebugCntl.parse_argv, arg = " << arg << std::endl;
+        std::string t(arg, 0, 6);
+        std::cout << "DebugCntl.parse_argv, t   = " << t   << std::endl;
+        if ( t == "-debug" ) {
+            std::string sl(arg,7, 1);
+            std::cout << "DebugCntl.parse_argv, sl  = " << sl  << std::endl;
+            level_ = ::atoi(sl.c_str() );
+            std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
+        }
     }
-    std::cout << "CmdPacket.write, bfrlen = " << cbfr_->bfrlen() << std::endl;
-    cmd_fd->write(cbfr_);
 }
 
-std::string
-trk::CmdPacket::
-command()
+bool
+trk::DebugCntl::
+check(int l)
 {
-    return command_;
-}
-
-std::string
-trk::CmdPacket::
-type()
-{
-    return type_;
-}
-
-int
-trk::CmdPacket::
-cmd_seqno()
-{
-    return cmd_seqno_;
-}
-
-int
-trk::CmdPacket::
-n_item()
-{
-    return n_item_;
-}
-
-std::pair<int, int>
-trk::CmdPacket::
-item(int i)
-{
-    return items_[i];
+    if (l <= level_ ) return true;
+    else              return false;
 }
 
 void
-trk::CmdPacket::
-item(int i, std::pair<int, int> p)
+trk::DebugCntl::level(int l)
 {
-    items_[i] = p;
+    level_ = l;
 }

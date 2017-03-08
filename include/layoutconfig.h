@@ -60,15 +60,17 @@ namespace trk {
             ~LayoutConfig();
 
             std::map<std::string, int> zone_indexes();
-            std::map<std::string, int> blk_names();
+            std::map<std::string, int> blk_map();
+            std::vector<std::string>   blk_names();
+
             std::map<std::string, int> sw_names();
         protected:
             LayoutConfig(const std::string& cfgfil);
         private:
 
-            std::map<std::string, int>        zone_indexes_;;
-            std::map<std::string, int>        blk_names_;;
-            std::map<std::string, int>        sw_names_;;
+            std::map<std::string, int>        zone_indexes_;
+            std::map<std::string, int>        blk_map_;
+            std::map<std::string, int>        sw_names_;
 
             static LayoutConfig* instance_;
     };

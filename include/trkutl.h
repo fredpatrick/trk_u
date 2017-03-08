@@ -54,6 +54,8 @@ operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate);
 
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate);
+
+SW_DIRECTION to_swstate(int i);
 }
 
 std::istream&
