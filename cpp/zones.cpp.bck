@@ -55,7 +55,7 @@ trk::Zones::
 Zones()
 {
     LayoutConfig* layout_config = LayoutConfig::instance();
-    zone_indexes_  = layout_config->zone_indexes();
+    zone_indexes_  = layout_config->track_sensor_indexes();
     zones_.resize(zone_indexes_.size(), 0 );
     typedef std::map<std::string, int>::const_iterator ZI;
     for ( ZI p = zone_indexes_.begin(); p != zone_indexes_.end(); ++p) {

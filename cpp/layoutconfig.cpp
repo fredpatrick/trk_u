@@ -1,3 +1,4 @@
+
 /*
  * ============================================================================
  *                   The XyloComp Software License, Version 1.1
@@ -41,17 +42,18 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
 #include <iostream>
 #include "layoutconfig.h"
+
+using namespace trk;
 
 trk::LayoutConfig* trk::LayoutConfig::instance_ = 0;
 
 trk::LayoutConfig*
-trk::
-LayoutConfig::instance()
+trk::LayoutConfig::
+instance()
 {
-    std::string cfgfil = "./layout_config";
+    std::string cfgfil = "./gpioconfig.cfg";
     if ( !instance_ ) {
         instance_ = new LayoutConfig(cfgfil);
     }
@@ -59,63 +61,194 @@ LayoutConfig::instance()
 }
 
 trk::
-LayoutConfig::LayoutConfig(const std::string& cfgfil)
+LayoutConfig::
+LayoutConfig(const std::string& cfgfil)
 {
     std::ifstream from(cfgfil.c_str() );
-//  std::cout << "LayoutConfig::LayoutConfig " << cfgfil << " opened" << std::endl;
-    char        cline[120];
+    std::string   pin_name;
+    GPIOData      data;
+    char         cline[120];
 
     while (!from.eof() ) {
         std::string tag = "";
         from >> tag;
-        if ( !from.good() ) {
-            break;
-        }
         if  (tag[0] == '#' ) {
             from.getline(cline, 120);
+        } else if ( tag == "HDR" ) {
+            from >> pin_name >> data.gpio_num >> data.gpio_pin >> data.direction >> data.color;
+            header_pins_[pin_name] = data;
+        } else if ( tag == "ADDR") {
+            std::string dmx_a;
+            from >> dmx_a >> pin_name;
+            address_pins_[dmx_a] = pin_name;
         } else if ( tag == "SW")   {
-            std::string sw_name;
-            int         sw_num;
-            from >> sw_name >> sw_num;
-            sw_names_[sw_name] = sw_num;
+            SWKey key;
+            SWData     swd;
+            from >> swd.switch_name >> swd.switch_index >> swd.direc >> swd.pin_name;
+            key.num = swd.switch_index;
+            key.swd = swd.direc;
+            switch_sensors_[key] = swd;
         } else if ( tag == "TRK")  {
-            std::string zone_name;
-            int    zone_index;
-            from >> zone_name >> zone_index;
-            zone_indexes_[zone_name] = zone_index;
+            TRKData      td;
+            std::string sensor_name;
+            from >> sensor_name >> td.sensor_index >> td.pin_name;
+            track_sensors_[sensor_name] = td;
+        } else if ( tag == "PCB")  {
+            from >> pcb_power_pin_;
+        } else if ( tag == "BRKSIG") {
+            from >> brk_event_pin_;
         } else if ( tag == "BLK" ) {
+            BLKData bd;
             std::string  blk_name;
-            int          blk_index;
-            from >> blk_name >> blk_index;
-            blk_map_[blk_name] = blk_index;
+            from >> blk_name;
+            if ( blk_name == "Base" ) {
+                from >> block_base_index_;
+            } else {
+                from >> bd.sensor_index >> bd.pin_name;
+                block_sensors_[blk_name] = bd;
+            }
         }
     }
-    from.close();
 }
 
 std::vector<std::string>
 trk::LayoutConfig::
-blk_names()
+track_sensor_names()
 {
-    std::vector<std::string> tnms;
-    tnms.reserve(blk_map_.size() ); 
-    typedef std::map<std::string,int>::const_iterator CI;
-    for ( CI p = blk_map_.begin(); p != blk_map_.end(); p++ ) {
-        tnms[p->second] = p->first;
+    std::vector<std::string> track_sensor_names;
+    track_sensor_names.reserve(track_sensors_.size() );
+    typedef std::map<std::string, TRKData>::const_iterator CI;
+    for ( CI p = track_sensors_.begin(); p != track_sensors_.end(); p++) {
+        track_sensor_names[p->second.sensor_index] = p->first;
     }
-    return tnms;
+    return track_sensor_names;
 }
 
-std::map<std::string, int>
+int
 trk::LayoutConfig::
-zone_indexes()
+track_sensor_gpio_num(const std::string& sensor_name)
 {
-    return zone_indexes_;;
+    std::string pin_name = track_sensors_[sensor_name].pin_name;
+    return header_pins_[pin_name].gpio_num;
 }
 
-std::map<std::string, int>
+/*
+void
 trk::LayoutConfig::
-sw_names()
+clear_gpios()
 {
-    return sw_names_;;
+    typedef std::map<std::string, LayoutData>::const_iterator CI;
+    for (CI p = header_pins_.begin(); p!= header_pins_.end(); ++p) {
+        LayoutData data = p->second;
+        Layout* gpio = new GPIO( data.gpio_num);
+        delete gpio;
+    }
+}
+*/
+
+std::vector<std::string>
+trk::LayoutConfig::
+block_sensor_names()
+{
+    std::vector<std::string> bns;
+    bns.reserve(block_sensors_.size() );
+
+    typedef std::map<std::string, BLKData>::const_iterator CI;
+    for ( CI p = block_sensors_.begin(); p != block_sensors_.end(); p++) {
+        bns[p->second.sensor_index] = p->first;
+    }
+    return bns;
+}
+
+int
+trk::LayoutConfig::
+block_sensor_gpio_num(const std::string& sensor_name)
+{
+    std::string pin_name = block_sensors_[sensor_name].pin_name;
+    return header_pins_[pin_name].gpio_num;
+}
+
+std::vector<std::string>
+trk::LayoutConfig::
+switch_names()
+{
+    std::vector<std::string> sns;
+    sns.reserve(switch_sensors_.size() / 2);
+
+    typedef std::map<SWKey, SWData>::const_iterator CI;
+    for ( CI p = switch_sensors_.begin(); p != switch_sensors_.end(); p++) {
+        if ( p->second.direc == THRU ) {
+            sns[p->second.switch_index] = p->second.switch_name;
+        }
+    }
+    return sns;
+}
+
+int
+trk::LayoutConfig::
+switch_sensor_gpio_num(const SWKey& key)
+{
+    std::string pin_name = switch_sensors_[key].pin_name;
+    return header_pins_[pin_name].gpio_num;
+}
+
+void
+trk::LayoutConfig::
+list_header_pins(std::ostream& ostrm)
+{
+    ostrm << "LayoutConfig::list_header_pins" << std::endl;
+    typedef std::map<std::string, GPIOData>::const_iterator CI;
+    for (CI p = header_pins_.begin(); p!= header_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+LayoutConfig::list_demux_address_pins(std::ostream& ostrm)
+{
+    ostrm << "LayoutConfig::list_demux_address_pins" << std::endl;
+    typedef std::map<std::string, std::string>::const_iterator CI;
+    for (CI p = address_pins_.begin(); p!= address_pins_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second << '\n';
+    }
+}
+
+void
+trk::
+LayoutConfig::list_switch_sensor_pins(std::ostream& ostrm)
+{
+    ostrm << "LayoutConfig::list_switch_sensor_pins" << std::endl;
+    typedef std::map<SWKey, SWData>::const_iterator CI;
+    for (CI p = switch_sensors_.begin(); p!= switch_sensors_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second.pin_name << '\n';
+    }
+}
+
+void
+trk::
+LayoutConfig::list_track_sensor_pins(std::ostream& ostrm)
+{
+    ostrm << "LayoutConfig::list_track_sensor_pins" << std::endl;
+    typedef std::map<std::string, TRKData>::const_iterator CI;
+    for (CI p = track_sensors_.begin(); p!= track_sensors_.end(); ++p) {
+        ostrm << p->first << '\t' << p->second.sensor_index << 
+                             '\t' << p->second.pin_name << '\n';
+    }
+}
+
+void
+trk::LayoutConfig::
+list_pcb_power_pin(std::ostream& ostrm)
+{
+    ostrm << "LayoutConfig::pcb_power_pin: ";
+    ostrm << pcb_power_pin_ << std::endl;
+}
+
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const trk::GPIOData& data)
+{
+    ostrm << data.gpio_num << '\t' << data.gpio_pin << '\t' << 
+                                     data.direction << '\t' << data.color;
+    return ostrm;
 }

@@ -56,21 +56,24 @@ class EventDevice;
 class SwitchEvent : public InputEvent
 {
     public:
-        SwitchEvent(PacketBuffer* ebfr);
-        SwitchEvent(double       tm_event,
-                    int          sw_num,
-                    SW_DIRECTION sw_direc,
-                    int          value);
+        SwitchEvent(PacketBuffer*      ebfr);
+        SwitchEvent(double             tm_event,
+                    const std::string& switch_name,
+                    int                sw_num,
+                    SW_DIRECTION       sw_direc,
+                    int                value);
         ~SwitchEvent();
 
         int          write_event(EventDevice* efd);
         void         print(int ntab);
 
+        std::string  switch_name();
         int          sw_num();
         SW_DIRECTION sw_direc();
         int          value();
     private:
         PacketBuffer* ebfr_;
+        std::string  switch_name_;
         int          sw_num_;
         SW_DIRECTION sw_direc_;
         int          value_;
