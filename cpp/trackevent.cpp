@@ -56,24 +56,27 @@ TrackEvent(PacketBuffer* ebfr)
 
     tm_event_    = ebfr_->dbldat();
     event_seq_n_ = ebfr_->intdat();
-    zone_name_   = ebfr_->strdat();
+    zonename_   = ebfr_->strdat();
     track_state_ = ebfr_->trkstate();
 }
 
 trk::TrackEvent::
 TrackEvent(double          tm_event,
-            const std::string& zone_name,
+            const std::string& zonename,
+            int                sensor_index,
             const TRK_STATE&   track_state)
 {
     tag_         = "TRK";
     tm_event_    = tm_event;
-    zone_name_   = zone_name;
+    zonename_   = zonename;
+    sensor_index_ = sensor_index;
     track_state_ = track_state;
     event_seq_n_++;
     ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
-    ebfr_->strdat(zone_name_);
+    ebfr_->strdat(zonename_);
+    ebfr_->intdat(sensor_index_);
     ebfr_->intdat(track_state_);
 }
 
@@ -96,15 +99,22 @@ print(int ntab)
 {
     std::cout.width(ntab);
     std::cout << "| ";
-    std::cout << "TrackEvent::" << zone_name_ << " - " << 
+    std::cout << "TrackEvent::" << zonename_ << " - " << 
                           track_state_ <<  " - " << event_seq_n_ << " - "<< tm_event_ << std::endl;
 }
 
 std::string
 trk::TrackEvent::
-zone_name()
+zonename()
 {
-    return zone_name_;
+    return zonename_;
+}
+
+int
+trk::TrackEvent::
+sensor_index()
+{
+    return sensor_index_;
 }
 
 trk::TRK_STATE

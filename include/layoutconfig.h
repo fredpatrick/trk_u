@@ -97,6 +97,7 @@ class LayoutConfig {
         int                      switch_sensor_gpio_num(const SWKey& key);
         std::string              switch_name(const SWKey& key) 
                                     { return switch_sensors_[key].switch_name; }
+        int                      switch_sensor_index(const std::string& switch_name);
 
         std::vector<std::string> track_sensor_names();
         int                      track_sensor_gpio_num(const std::string& sensor_name);

@@ -58,17 +58,20 @@ class TrackEvent : public InputEvent
     public:
         TrackEvent(PacketBuffer* ebfr);
         TrackEvent(double tm_event,
-                   const std::string& zone_name,
+                   const std::string& zonename,
+                   int                sensor_index,
                    const TRK_STATE&   track_state);
         ~TrackEvent();
 
         int         write_event(EventDevice* efd);
         void        print(int ntab);
-        std::string zone_name();
+        std::string zonename();
         TRK_STATE   track_state();
+        int         sensor_index();
     private:
         PacketBuffer* ebfr_;
-        std::string zone_name_;
+        std::string zonename_;
+        int         sensor_index_;
         TRK_STATE   track_state_;
 
 };

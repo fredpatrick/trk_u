@@ -43,7 +43,9 @@
  * 
  */
 #include <iostream>
+#include <unistd.h>
 #include "layoutconfig.h"
+#include "filestore.h"
 
 using namespace trk;
 
@@ -53,9 +55,9 @@ trk::LayoutConfig*
 trk::LayoutConfig::
 instance()
 {
-    std::string cfgfil = "./gpioconfig.cfg";
     if ( !instance_ ) {
-        instance_ = new LayoutConfig(cfgfil);
+        FileStore* fs = FileStore::instance();
+        instance_ = new LayoutConfig(fs->cfgfil() );
     }
     return instance_;
 }
@@ -65,6 +67,11 @@ LayoutConfig::
 LayoutConfig(const std::string& cfgfil)
 {
     std::ifstream from(cfgfil.c_str() );
+    if ( from.is_open() ) {
+        std::cout << "LayoutConfig.ctor, cfgfil opened" << std::endl;
+    } else {
+        std::cout << "LayoutConfig, open for " << cfgfil << " failed" << std::endl;
+    }
     std::string   pin_name;
     GPIOData      data;
     char         cline[120];
@@ -116,7 +123,7 @@ trk::LayoutConfig::
 track_sensor_names()
 {
     std::vector<std::string> track_sensor_names;
-    track_sensor_names.reserve(track_sensors_.size() );
+    track_sensor_names.resize(track_sensors_.size() );
     typedef std::map<std::string, TRKData>::const_iterator CI;
     for ( CI p = track_sensors_.begin(); p != track_sensors_.end(); p++) {
         track_sensor_names[p->second.sensor_index] = p->first;
@@ -131,7 +138,6 @@ track_sensor_gpio_num(const std::string& sensor_name)
     std::string pin_name = track_sensors_[sensor_name].pin_name;
     return header_pins_[pin_name].gpio_num;
 }
-
 /*
 void
 trk::LayoutConfig::
@@ -150,12 +156,15 @@ std::vector<std::string>
 trk::LayoutConfig::
 block_sensor_names()
 {
+    std::cout << "LayoutConfig::block_sensor_names" << std::endl;
     std::vector<std::string> bns;
-    bns.reserve(block_sensors_.size() );
+    bns.resize(block_sensors_.size() );
 
     typedef std::map<std::string, BLKData>::const_iterator CI;
     for ( CI p = block_sensors_.begin(); p != block_sensors_.end(); p++) {
+        std::cout << "LayoutConfig::block_sensor_names, " << p->first << std::endl;
         bns[p->second.sensor_index] = p->first;
+        std::cout << "LayoutConfig::block_sensor_names, " << p->first << std::endl;
     }
     return bns;
 }
@@ -173,7 +182,7 @@ trk::LayoutConfig::
 switch_names()
 {
     std::vector<std::string> sns;
-    sns.reserve(switch_sensors_.size() / 2);
+    sns.resize(switch_sensors_.size() / 2);
 
     typedef std::map<SWKey, SWData>::const_iterator CI;
     for ( CI p = switch_sensors_.begin(); p != switch_sensors_.end(); p++) {
@@ -183,6 +192,21 @@ switch_names()
     }
     return sns;
 }
+
+int
+trk::LayoutConfig::
+switch_sensor_index(const std::string& switch_name)
+{
+    typedef std::map<SWKey, SWData>::const_iterator CI;
+    for ( CI p = switch_sensors_.begin(); p != switch_sensors_.end(); p++) {
+        if ( p->second.switch_name == switch_name ) {
+            //sns[p->second.switch_index] = p->second.switch_name;
+            return p->second.switch_index;
+        }
+    }
+    return 999;
+}
+
 
 int
 trk::LayoutConfig::

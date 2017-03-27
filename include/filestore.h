@@ -42,56 +42,37 @@
  * 
  */
 
-#include <stdlib.h>
+#ifndef TRK_FILENAMESTORE_HH
+#define TRK_FILENAMESTORE_HH
+
 #include <string>
-#include <iostream>
+#include <fstream>
 
-#include "debugcntl.h"
-
-trk::DebugCntl* trk::DebugCntl::instance_ = 0;
-
-trk::DebugCntl*
-trk::DebugCntl::
-instance()
+namespace trk
 {
-    if ( instance_ == 0 ) {
-        instance_ = new DebugCntl();
-    }
-    return instance_;
-}
+    class FileStore
+    {
+            public:
+            static FileStore* instance();
+            ~FileStore() {}
 
-trk::DebugCntl::
-DebugCntl()
-{
-    level_ = 0;
-}
+            std::string     vtxfil() const                    { return vtxfil_; }
+            void            vtxfil(const std::string& vtxfil) { vtxfil_ = vtxfil; }
+            std::string     cfgfil() const                    { return cfgfil_; }
+            void            cfgfil(const std::string& cfgfil) { cfgfil_ = cfgfil; }
+            std::string     pthfil() const                    { return pthfil_; }
+            void            pthfil(const std::string& pthfil) { pthfil_ = pthfil; }
+        protected:
+            FileStore();
+        private:
+            std::string     vtxfil_;
+            std::string     cfgfil_;
+            std::string     pthfil_;
+            
+            static FileStore*   instance_;
+    };
 
-void
-trk::DebugCntl::
-parse_argv(int argc, char* argv[])
-{
-    for ( int i = 1; i < argc; i++ ) {
-        std::string arg = argv[i];
-        std::string t(arg, 0, 6);
-        if ( t == "-debug" ) {
-            arg = argv[i + 1];
-            level_ = ::atoi(arg.c_str() );
-            std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
-            break;
-        }
-    }
+    std::ostream&
+    operator<<(std::ostream& ostrm, const trk::FileStore& fs);
 }
-
-bool
-trk::DebugCntl::
-check(int l)
-{
-    if (l <= level_ ) return true;
-    else              return false;
-}
-
-void
-trk::DebugCntl::level(int l)
-{
-    level_ = l;
-}
+#endif

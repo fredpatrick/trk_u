@@ -42,56 +42,31 @@
  * 
  */
 
-#include <stdlib.h>
-#include <string>
-#include <iostream>
+#include "filestore.h"
 
-#include "debugcntl.h"
+trk::FileStore* trk::FileStore::instance_ = 0;
 
-trk::DebugCntl* trk::DebugCntl::instance_ = 0;
-
-trk::DebugCntl*
-trk::DebugCntl::
+trk::FileStore*
+trk::FileStore::
 instance()
 {
-    if ( instance_ == 0 ) {
-        instance_ = new DebugCntl();
+    if ( !instance_ ) {
+        instance_ = new FileStore();
     }
     return instance_;
 }
 
-trk::DebugCntl::
-DebugCntl()
+trk::FileStore::
+FileStore()
 {
-    level_ = 0;
 }
 
-void
-trk::DebugCntl::
-parse_argv(int argc, char* argv[])
+std::ostream&
+trk::operator<<( std::ostream& ostrm, const  trk::FileStore& fs)
 {
-    for ( int i = 1; i < argc; i++ ) {
-        std::string arg = argv[i];
-        std::string t(arg, 0, 6);
-        if ( t == "-debug" ) {
-            arg = argv[i + 1];
-            level_ = ::atoi(arg.c_str() );
-            std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
-            break;
-        }
-    }
-}
-
-bool
-trk::DebugCntl::
-check(int l)
-{
-    if (l <= level_ ) return true;
-    else              return false;
-}
-
-void
-trk::DebugCntl::level(int l)
-{
-    level_ = l;
+    ostrm << "FileStore\n";
+    ostrm << "\t" << fs.vtxfil() << "\n";
+    ostrm << "\t" << fs.cfgfil() << "\n";
+    ostrm << "\t" << fs.pthfil() << "\n";
+    return ostrm;
 }
