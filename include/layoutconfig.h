@@ -88,8 +88,8 @@ class LayoutConfig {
 
         int                      gpio_num(const std::string& pin_name)
                                     { return header_pins_[pin_name].gpio_num; }
-        std::string              pcb_power_gpio()
-                                    { return pcb_power_pin_; }
+        int                      pcb_power_gpio_num()
+                                    { return header_pins_[pcb_power_pin_].gpio_num; }
         int                      demux_address_gpio_num(const std::string& a)
                                     { return header_pins_[ address_pins_[a] ].gpio_num; }
         int                      break_sensor_gpio_num()
