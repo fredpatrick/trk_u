@@ -116,6 +116,17 @@ LayoutConfig(const std::string& cfgfil)
             }
         }
     }
+    track_sensor_count_ = track_sensors_.size();
+    block_sensor_count_ = block_sensors_.size();
+    switch_count_       = switch_sensors_.size() / 2;
+    switch_names_.resize(switch_count_);
+
+    typedef std::map<SWKey, SWData>::const_iterator CI;
+    for ( CI p = switch_sensors_.begin(); p != switch_sensors_.end(); p++) {
+        if ( p->second.direc == THRU ) {
+            switch_names_[p->second.switch_index] = p->second.switch_name;
+        }
+    }
 }
 
 std::vector<std::string>
@@ -175,22 +186,6 @@ block_sensor_gpio_num(const std::string& sensor_name)
 {
     std::string pin_name = block_sensors_[sensor_name].pin_name;
     return header_pins_[pin_name].gpio_num;
-}
-
-std::vector<std::string>
-trk::LayoutConfig::
-switch_names()
-{
-    std::vector<std::string> sns;
-    sns.resize(switch_sensors_.size() / 2);
-
-    typedef std::map<SWKey, SWData>::const_iterator CI;
-    for ( CI p = switch_sensors_.begin(); p != switch_sensors_.end(); p++) {
-        if ( p->second.direc == THRU ) {
-            sns[p->second.switch_index] = p->second.switch_name;
-        }
-    }
-    return sns;
 }
 
 int

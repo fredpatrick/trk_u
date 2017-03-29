@@ -47,6 +47,7 @@
 #include "packetbuffer.h"
 #include "eventdevice.h"
 #include "illegal_cmdpacket.h"
+#include "debugcntl.h"
 
 int trk::CmdPacket::cmd_seqno_ = 0;
 
@@ -55,6 +56,7 @@ CmdPacket(const std::string& command,
           const std::string& type,
           int                n_item)
 {
+    dbg_ = DebugCntl::instance();
     tag_     = "CMD";
     command_ = command;
     type_    = type;
@@ -71,6 +73,7 @@ CmdPacket(const std::string& command,
 trk::CmdPacket::
 CmdPacket(PacketBuffer* cbfr)
 {
+    dbg_ = DebugCntl::instance();
     cbfr_    = cbfr;
     tag_     = cbfr_->tag();
     if ( tag_ != "CMD" ) {
@@ -85,6 +88,12 @@ CmdPacket(PacketBuffer* cbfr)
     items_     = new std::pair<int,int>[n_item_];
     for ( int i = 0; i < n_item_; i++) {
         items_[i] = cbfr_->pairdat();
+    }
+    std::cout << "CmdPacket.ctor-2" << std::endl;
+    if ( dbg_->check(2) ) {
+        std::cout << "CmdPacket.ctor-2, type = " << type_ << 
+                                    ", command = " << command_ << 
+                                    ", cmd_seqno = " << cmd_seqno_ <<  std::endl;
     }
 }
 
@@ -104,11 +113,15 @@ write( EventDevice* cmd_fd)
     cbfr_->strdat(command_);
     cbfr_->intdat(cmd_seqno_);
     cbfr_->intdat(n_item_);
-    std::cout << "CmdPacket.write, n_item_ = " << n_item_ << std::endl;
     for ( int i = 0; i < n_item_; i++) {
         cbfr_->pairdat(items_[i]);
     }
-    std::cout << "CmdPacket.write, bfrlen = " << cbfr_->bfrlen() << std::endl;
+    std::cout << "CmdPacket.write" << std::endl;
+    if ( dbg_->check(2) ) {
+        std::cout << "CmdPacket.write, type = " << type_ << 
+                                    ", command = " << command_ << 
+                                    ", cmd_seqno = " << cmd_seqno_ <<  std::endl;
+    }
     cmd_fd->write(cbfr_);
 }
 

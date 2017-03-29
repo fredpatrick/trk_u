@@ -51,6 +51,7 @@
 namespace trk {
     class PacketBuffer;
     class EventDevice;
+    class DebugCntl;
 
     class CmdPacket 
     {
@@ -76,6 +77,7 @@ namespace trk {
             static int          cmd_seqno_;
             std::pair<int,int>* items_;
             PacketBuffer*        cbfr_;
+            DebugCntl*           dbg_;
     };
 }
 

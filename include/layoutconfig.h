@@ -100,17 +100,24 @@ class LayoutConfig {
         int                      switch_sensor_index(const std::string& switch_name);
 
         std::vector<std::string> track_sensor_names();
+        int                      track_sensor_count() 
+                                     { return track_sensor_count_;}
         int                      track_sensor_gpio_num(const std::string& sensor_name);
         int                      track_sensor_index(const std::string& sensor_name)
                                     { return track_sensors_[sensor_name].sensor_index; }
 
         std::vector<std::string> block_sensor_names();
+        int                      block_sensor_count()
+                                    { return block_sensor_count_; }
         int                      block_sensor_gpio_num(const std::string& sensor_name);
         int                      block_base_addr()
                                     { return block_base_index_; }
         int                      block_sensor_index(const std::string& sensor_name)
                                     { return block_sensors_[sensor_name].sensor_index; }
-        std::vector<std::string> switch_names();
+        std::vector<std::string> switch_names()
+                                    { return switch_names_; }
+        int                      switch_count() 
+                                    { return switch_count_; }
 
         void        clear_gpios();
         std::vector<std::string> zone_names();
@@ -129,6 +136,10 @@ class LayoutConfig {
         std::map<SWKey, SWData>             switch_sensors_;
         std::map<std::string, TRKData>      track_sensors_;
         std::map<std::string, BLKData>      block_sensors_;
+        int                                 track_sensor_count_;
+        int                                 block_sensor_count_;
+        int                                 switch_count_;
+        std::vector<std::string>            switch_names_;
         int                                 block_base_index_;
         std::string                         pcb_power_pin_;
         std::string                         brk_event_pin_;
