@@ -68,5 +68,6 @@ trk::operator<<( std::ostream& ostrm, const  trk::FileStore& fs)
     ostrm << "\t" << fs.vtxfil() << "\n";
     ostrm << "\t" << fs.cfgfil() << "\n";
     ostrm << "\t" << fs.pthfil() << "\n";
+    ostrm << "\t" << fs.dbgfil() << "\n";
     return ostrm;
 }

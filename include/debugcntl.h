@@ -44,26 +44,46 @@
 
 #ifndef TRK_DEBUGCNTL_HH
 #define TRK_DEBUGCNTL_HH
+#include <string>
+#include <vector>
+#include <fstream>
+#include <iomanip>
 
 namespace trk
 {
+    enum FMTCNTL {jbtime, boolalpha, endl};
+    
+    class DebugCntl;
+    trk::DebugCntl& operator<<(trk::DebugCntl& dbg, const std::string& str);
+    trk::DebugCntl& operator<<(trk::DebugCntl& dbg, int);
+    trk::DebugCntl& operator<<(trk::DebugCntl& dbg, double);
+    trk::DebugCntl& operator<<(trk::DebugCntl& dbg, const FMTCNTL&);
+
     class DebugCntl
     {
         public:
             static DebugCntl* instance();
             ~DebugCntl();
 
-            void parse_argv(int argc, char* argv[]);
-            bool check(int l);
+            void       parse_argv(int argc, char* argv[]);
+            bool       check(int l);
 
-            void level(int l);
+            void       level(int l);
+            std::string bools(int i) { return bools_[i]; }
+
+            friend trk::DebugCntl& trk::operator<<(trk::DebugCntl&, const std::string&);
+            friend trk::DebugCntl& trk::operator<<(trk::DebugCntl&, int);
+            friend trk::DebugCntl& trk::operator<<(trk::DebugCntl&, double);
+            friend trk::DebugCntl& trk::operator<<(trk::DebugCntl&, const FMTCNTL&);
 
         protected:
-            DebugCntl();
+            DebugCntl(const std::string& dbgfil);
 
         private:
+            std::ofstream     dbgstrm_;
             int               level_;
             static DebugCntl* instance_;
+            std::vector<std::string> bools_;
     };
 }
 #endif

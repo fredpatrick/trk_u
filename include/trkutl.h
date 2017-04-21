@@ -2,6 +2,8 @@
 #define TRK_TRKUTL_HH
 
 #define DEBUG_SCKT 0
+
+#include "debugcntl.h"
 #include <iostream>
 #include <string>
 
@@ -11,9 +13,6 @@ namespace trk
 enum SW_DIRECTION {THRU, OUT, NOVAL };
 enum TRK_STATE { IDLE, BUSY };
 enum BLK_STATE { GO, STOP};
-
-enum TrackState { LowerLoopCW, LowerLoopCCW,
-                  UpperLoopCW, UpperLoopCCW };
 
 struct SWKey {
     int             num; 
@@ -37,6 +36,8 @@ struct SWKey {
     }
 };
 
+std::string dattime();
+
 std::string get_yesno(const std::string& question);
 
 SWKey      get_switch();
@@ -55,17 +56,19 @@ operator<<( std::ostream& ostrm, const trk::TRK_STATE& trkstate);
 std::ostream&
 operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate);
 
+trk::DebugCntl&
+operator<<( trk::DebugCntl& dbg, const trk::SW_DIRECTION& idirec);
+
+trk::DebugCntl&
+operator<<( trk::DebugCntl& dbg, const trk::TRK_STATE& trkstate);
+
+trk::DebugCntl&
+operator<<( trk::DebugCntl& dbg, const trk::BLK_STATE& blkstate);
+
 SW_DIRECTION to_swstate(int i);
 }
 
 std::istream&
 operator>>( std::istream& is, trk::SW_DIRECTION& idirec);
-
-std::istream&
-operator>>( std::istream& is, trk::TrackState& idirec);
-
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::TrackState& idirec);
-
 
 #endif

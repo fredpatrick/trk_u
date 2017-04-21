@@ -47,9 +47,21 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #include <iostream>
 #include "trkutl.h"
 #include "enum_out_of_range.h"
+
+std::string
+trk::dattime()
+{
+    time_t      rawtime;
+    ::time(&rawtime);
+    struct tm*  info = ::localtime(&rawtime);
+    char        buffer[16];
+    ::strftime( buffer, 16, "%Y%m%d_%H%M%S", info);
+    return buffer;
+}
 
 std::string
 trk::get_yesno( const std::string& question ) 
@@ -169,32 +181,30 @@ trk::operator<<( std::ostream& ostrm, const trk::BLK_STATE& blkstate)
     return ostrm;
 }
 
-std::istream& 
-operator>>( std::istream& is, trk::TrackState& trkstate)
+trk::DebugCntl&
+trk::operator<<( trk::DebugCntl& dbg, const trk::SW_DIRECTION& idirec)
 {
-    std::string tmp;
-    if ( is >> tmp ) {
-        if ( tmp == "LowerLoopCW") {
-            trkstate = trk::LowerLoopCW;
-        } else if ( tmp == "LowerLoopCCW" ) {
-            trkstate = trk::LowerLoopCCW;
-        } else if ( tmp == "UpperLoopCW" ) {
-            trkstate = trk::UpperLoopCW;
-        } else if ( tmp == "UpperLoopCCW" ) {
-            trkstate = trk::UpperLoopCCW;
-        }
-    }
-    return is;
+    if ( idirec == trk::THRU )       dbg << "THRU  ";
+    else if ( idirec == trk::OUT )   dbg << "OUT   ";
+    else if ( idirec == trk::NOVAL)  dbg << "NOVAL ";
+    return dbg;
 }
 
-std::ostream&
-operator<<( std::ostream& ostrm, const trk::TrackState& trkstate)
+
+trk::DebugCntl&
+trk::operator<<( trk::DebugCntl& dbg, const trk::TRK_STATE& trkstate)
 {
-    if (      trkstate == trk::LowerLoopCW  )   ostrm << "LowerLoopCW";
-    else if ( trkstate == trk::LowerLoopCCW )   ostrm << "LowerLoopCCW";
-    else if ( trkstate == trk::UpperLoopCW  )   ostrm << "UpperLoopCW";
-    else if ( trkstate == trk::UpperLoopCCW )   ostrm << "UpperLoopCCW";
-    return ostrm;
+    if      ( trkstate == trk::IDLE) dbg << "IDLE";
+    else if ( trkstate == trk::BUSY) dbg << "BUSY";
+    return dbg;
+}
+
+trk::DebugCntl&
+trk::operator<<( trk::DebugCntl& dbg, const trk::BLK_STATE& blkstate)
+{
+    if      ( blkstate == trk::GO   ) dbg << "GO   ";
+    else if ( blkstate == trk::STOP ) dbg << "STOP ";
+    return dbg;
 }
 
 std::ostream&

@@ -45,6 +45,7 @@
 #include "packetbuffer.h"
 #include "enum_out_of_range.h"
 #include <string.h>
+#include <iostream>
 
 trk::PacketBuffer::
 PacketBuffer(const std::string& tag)
@@ -113,7 +114,6 @@ std::string
 trk::PacketBuffer::
 strdat()
 {
-    int ls;
     std::string s = &bfr_[bfrndx_];
     bfrndx_ += (s.length() + 1);
     return s;
@@ -204,6 +204,7 @@ trkstate()
     if (      b == 0 ) return IDLE;
     else if ( b == 1 ) return BUSY;
     else {
+        std::cout << "PacketBuffer.trkstate, b = " << b << std::endl;
         throw enum_out_of_range ("trkstate");
     }
 }

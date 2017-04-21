@@ -47,6 +47,8 @@
 #include <iostream>
 
 #include "debugcntl.h"
+#include "filestore.h"
+#include "jobclock.h"
 
 trk::DebugCntl* trk::DebugCntl::instance_ = 0;
 
@@ -55,15 +57,25 @@ trk::DebugCntl::
 instance()
 {
     if ( instance_ == 0 ) {
-        instance_ = new DebugCntl();
+        FileStore* fs = FileStore::instance();
+        instance_ = new DebugCntl( fs->dbgfil() );
     }
     return instance_;
 }
 
 trk::DebugCntl::
-DebugCntl()
+DebugCntl(const std::string& dbgfil) : dbgstrm_(dbgfil.c_str() )
 {
+    if ( dbgstrm_.is_open() ) {
+        std::cout << "DebugCntl.ctor, dbgstrm opened = " << dbgfil << std::endl;
+    } else {
+        std::cout << "DebugCntl.ctor, dbgstrm open failed, dbgfil = " << dbgfil << std::endl;
+    }
     level_ = 0;
+    bools_.push_back("false");
+    bools_.push_back("true");
+    std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    dbgstrm_.setf(std::ios_base::fixed, std::ios_base::floatfield);
 }
 
 void
@@ -77,6 +89,7 @@ parse_argv(int argc, char* argv[])
             arg = argv[i + 1];
             level_ = ::atoi(arg.c_str() );
             std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
+            dbgstrm_ << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
             break;
         }
     }
@@ -94,4 +107,50 @@ void
 trk::DebugCntl::level(int l)
 {
     level_ = l;
+}
+
+trk::DebugCntl&
+trk::operator<<(trk::DebugCntl& dbg, const std::string& str)
+{
+    std::cout    << str;
+    dbg.dbgstrm_ << str;
+    return dbg;
+}
+
+trk::DebugCntl&
+trk::operator<<(trk::DebugCntl& dbg, int i)
+{
+    std::cout    << i;
+    dbg.dbgstrm_ << i;
+    return dbg;
+}
+
+trk::DebugCntl&
+trk::operator<<(trk::DebugCntl& dbg, double d)
+{
+    std::cout    << d;
+    dbg.dbgstrm_ << d;
+    return dbg;
+}
+
+trk::DebugCntl&
+trk::operator<<(trk::DebugCntl& dbg, const FMTCNTL&  fmt)
+{
+    if ( fmt == trk::jbtime ) {
+        double tm = trk::JobClock::instance()->job_time();
+        std::cout    << tm << "|";;
+        dbg.dbgstrm_ << tm << "|";;
+    } else if (  fmt == trk::boolalpha ) {
+        std::cout    << std::boolalpha;
+        dbg.dbgstrm_ << std::boolalpha;
+    } else if ( fmt == trk::endl) {
+        std::cout    << std::endl;
+        dbg.dbgstrm_ << std::endl;
+    }  else {
+        std::cout << "trk::operator<<, FTMCNTL,  ###############################bad fmt"
+                                                        << std::endl;
+        dbg.dbgstrm_ << "trk::operator<<, FTMCNTL,  ###############################bad fmt"
+                                                        << std::endl;
+    }
+    return dbg;
 }

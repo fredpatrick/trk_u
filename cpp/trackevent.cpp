@@ -54,10 +54,11 @@ TrackEvent(PacketBuffer* ebfr)
     ebfr_ = ebfr;
     tag_ = "TRK";
 
-    tm_event_    = ebfr_->dbldat();
-    event_seq_n_ = ebfr_->intdat();
-    zonename_   = ebfr_->strdat();
-    track_state_ = ebfr_->trkstate();
+    tm_event_     = ebfr_->dbldat();
+    event_seq_n_  = ebfr_->intdat();
+    zonename_     = ebfr_->strdat();
+    sensor_index_ = ebfr_->intdat();
+    track_state_  = ebfr_->trkstate();
 }
 
 trk::TrackEvent::

@@ -47,7 +47,7 @@
 
 #include <iostream>
 #include <sys/time.h>
-
+#include <string>
 
 namespace trk {
 
@@ -57,15 +57,18 @@ class JobClock {
 
         ~JobClock();
 
-        double job_time();
-        double base_time();
-
+        double              job_time();
+        double              base_time()          { return t0_; }
+        void                base_time(double t0) { t0_ = t0;}
+        std::string         tod_timestamp()      { return tod_timestamp_; } 
+        void                tod_timestamp(const std::string& todts) {tod_timestamp_ = todts;}
 
     protected:
         JobClock();
 
     private:
-        double  t0_;
+        double              t0_;
+        std::string         tod_timestamp_;
 
         static JobClock*    instance_;
 };

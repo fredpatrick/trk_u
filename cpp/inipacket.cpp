@@ -42,43 +42,52 @@
  * 
  */
 
-#ifndef TRK_FILENAMESTORE_HH
-#define TRK_FILENAMESTORE_HH
+
+#include "inipacket.h"
+#include "debugcntl.h"
+#include "eventdevice.h"
+#include "jobclock.h"
+#include "packetbuffer.h"
 
 #include <string>
-#include <fstream>
 
-namespace trk
+trk::IniPacket::
+IniPacket()
 {
-    class FileStore
-    {
-            public:
-            static FileStore* instance();
-            ~FileStore() {}
-
-            std::string     vtxfil() const                    { return vtxfil_; }
-            void            vtxfil(const std::string& vtxfil) { vtxfil_ = vtxfil; }
-            std::string     cfgfil() const                    { return cfgfil_; }
-            void            cfgfil(const std::string& cfgfil) { cfgfil_ = cfgfil; }
-            std::string     pthfil() const                    { return pthfil_; }
-            void            pthfil(const std::string& pthfil) { pthfil_ = pthfil; }
-            std::string     dbgfil() const                    { return dbgfil_; }
-            void            dbgfil(const std::string& dbgfil) { dbgfil_ = dbgfil; }
-            std::string     evtfil() const                    { return evtfil_; }
-            void            evtfil(const std::string& evtfil) { evtfil_ = evtfil; }
-        protected:
-            FileStore();
-        private:
-            std::string     vtxfil_;
-            std::string     cfgfil_;
-            std::string     pthfil_;
-            std::string     dbgfil_;
-            std::string     evtfil_;
-            
-            static FileStore*   instance_;
-    };
-
-    std::ostream&
-    operator<<(std::ostream& ostrm, const trk::FileStore& fs);
+    std::string todts = JobClock::instance()->tod_timestamp();
+    pbfr_             = new PacketBuffer("INI");
+    pbfr_->strdat("tod");
+    pbfr_->strdat(todts);
 }
-#endif
+
+trk::IniPacket::
+IniPacket(PacketBuffer* pbfr)
+{
+    pbfr_ = pbfr;
+    std::string type = pbfr_->strdat();
+    if ( type == "tod") {
+        std::string todts = pbfr_->strdat();
+        JobClock* jbc = JobClock::instance();
+        jbc->tod_timestamp(todts);
+
+        pbfr_->reset();
+        pbfr_->strdat("btm");
+        pbfr_->dbldat( jbc->base_time() );
+        pbfr_->dbldat( jbc->job_time() );
+    } else if ( type == "btm" ) {
+        JobClock* jbc  = JobClock::instance();
+        DebugCntl* dbg = DebugCntl::instance();
+        double t0      = pbfr_->dbldat();
+        double t1      = pbfr_->dbldat();
+        jbc->base_time(t0);
+        double tl      = jbc->job_time();
+        *dbg << "IniPacket.ctor-1, type = " << type << ", delta = " << (tl -t1) << trk::endl;
+    }
+}
+
+void
+trk::IniPacket::
+write(EventDevice* fd)
+{
+    fd->write( pbfr_ );
+}

@@ -43,6 +43,7 @@
  */
 
 #include "jobclock.h"
+#include "trkutl.h"
 
 trk::JobClock* trk::JobClock::instance_ = 0;
 
@@ -65,6 +66,8 @@ JobClock()
     t0_ = t.tv_sec + t.tv_usec * 1.0e-06;
     std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
     std::cout << "JobClock.ctor, t0_ = " << t0_ << std::endl;
+
+    tod_timestamp_ = trk::dattime();
 }
 
 trk::JobClock::
@@ -81,13 +84,6 @@ job_time()
 
     double tm = t.tv_sec + t.tv_usec * 1.0e-06;
     return tm - t0_;
-}
-
-double
-trk::JobClock::
-base_time()
-{
-    return t0_;
 }
 
 std::ostream&

@@ -42,43 +42,26 @@
  * 
  */
 
-#ifndef TRK_FILENAMESTORE_HH
-#define TRK_FILENAMESTORE_HH
-
-#include <string>
-#include <fstream>
+#ifndef TRK_INIPACKET_HH
+#define TRK_INIPACKET_HH
 
 namespace trk
 {
-    class FileStore
+    
+    class PacketBuffer;
+    class DebugCntl;
+    class EventDevice;
+
+    class IniPacket
     {
-            public:
-            static FileStore* instance();
-            ~FileStore() {}
+        public:
+            IniPacket();
+            IniPacket(PacketBuffer* pbfr);
+            ~IniPacket() {}
 
-            std::string     vtxfil() const                    { return vtxfil_; }
-            void            vtxfil(const std::string& vtxfil) { vtxfil_ = vtxfil; }
-            std::string     cfgfil() const                    { return cfgfil_; }
-            void            cfgfil(const std::string& cfgfil) { cfgfil_ = cfgfil; }
-            std::string     pthfil() const                    { return pthfil_; }
-            void            pthfil(const std::string& pthfil) { pthfil_ = pthfil; }
-            std::string     dbgfil() const                    { return dbgfil_; }
-            void            dbgfil(const std::string& dbgfil) { dbgfil_ = dbgfil; }
-            std::string     evtfil() const                    { return evtfil_; }
-            void            evtfil(const std::string& evtfil) { evtfil_ = evtfil; }
-        protected:
-            FileStore();
+            void            write(EventDevice* fd);
         private:
-            std::string     vtxfil_;
-            std::string     cfgfil_;
-            std::string     pthfil_;
-            std::string     dbgfil_;
-            std::string     evtfil_;
-            
-            static FileStore*   instance_;
+            PacketBuffer*   pbfr_;
     };
-
-    std::ostream&
-    operator<<(std::ostream& ostrm, const trk::FileStore& fs);
 }
 #endif
