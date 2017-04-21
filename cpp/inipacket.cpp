@@ -75,6 +75,27 @@ IniPacket(PacketBuffer* pbfr)
 
 void
 trk::IniPacket::
+tod_timestamp(const std::string& todts)
+{
+    pbfr_->strdat(todts);
+}
+
+void
+trk::IniPacket::
+t0(double t)
+{
+    pbfr_->dbldat(t);
+}
+
+void
+trk::IniPacket::
+t1(double t)
+{
+    pbfr_->dbldat(t);
+}
+
+void
+trk::IniPacket::
 write(EventDevice* fd)
 {
     fd->write( pbfr_ );

@@ -63,11 +63,11 @@ namespace trk
 
             std::string     type()                                  { return type_; }
             std::string     tod_timestamp()                         { return tod_timestamp_; }
-            void            tod_timestamp(const std::string& todts) { tod_timestamp_ = todts; }
+            void            tod_timestamp(const std::string& todts);
             double          t0()                                    { return t0_; }
-            void            t0(double t)                            { t0_ = t; }
+            void            t0(double t);
             double          t1()                                    { return t1_; }
-            void            t1(double t)                            { t1_ = t; }
+            void            t1(double t);
             void            write(EventDevice* fd);
         private:
             PacketBuffer*   pbfr_;
