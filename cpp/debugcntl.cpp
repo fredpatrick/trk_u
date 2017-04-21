@@ -63,6 +63,22 @@ instance()
     return instance_;
 }
 
+int
+trk::debug_level(int argc, char* argv[])
+{
+    int level = 9999;
+    for ( int i = 1; i < argc; i++ ) {
+        std::string arg = argv[i];
+        std::string t(arg, 0, 6);
+        if ( t == "-debug" ) {
+            arg = argv[i + 1];
+            level = ::atoi(arg.c_str() );
+            return level;
+        }
+    }
+    return level;
+}
+
 trk::DebugCntl::
 DebugCntl(const std::string& dbgfil) : dbgstrm_(dbgfil.c_str() )
 {
@@ -76,23 +92,6 @@ DebugCntl(const std::string& dbgfil) : dbgstrm_(dbgfil.c_str() )
     bools_.push_back("true");
     std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
     dbgstrm_.setf(std::ios_base::fixed, std::ios_base::floatfield);
-}
-
-void
-trk::DebugCntl::
-parse_argv(int argc, char* argv[])
-{
-    for ( int i = 1; i < argc; i++ ) {
-        std::string arg = argv[i];
-        std::string t(arg, 0, 6);
-        if ( t == "-debug" ) {
-            arg = argv[i + 1];
-            level_ = ::atoi(arg.c_str() );
-            std::cout << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
-            dbgstrm_ << "DebugCntl.parse_argv, level set to " << level_ << std::endl;
-            break;
-        }
-    }
 }
 
 bool

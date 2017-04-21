@@ -45,6 +45,8 @@
 #ifndef TRK_INIPACKET_HH
 #define TRK_INIPACKET_HH
 
+#include <string>
+
 namespace trk
 {
     
@@ -55,13 +57,24 @@ namespace trk
     class IniPacket
     {
         public:
-            IniPacket();
+            IniPacket(const std::string& type);
             IniPacket(PacketBuffer* pbfr);
             ~IniPacket() {}
 
+            std::string     type()                                  { return type_; }
+            std::string     tod_timestamp()                         { return tod_timestamp_; }
+            void            tod_timestamp(const std::string& todts) { tod_timestamp_ = todts; }
+            double          t0()                                    { return t0_; }
+            void            t0(double t)                            { t0_ = t; }
+            double          t1()                                    { return t1_; }
+            void            t1(double t)                            { t1_ = t; }
             void            write(EventDevice* fd);
         private:
             PacketBuffer*   pbfr_;
+            std::string     type_;
+            std::string     tod_timestamp_;
+            double          t0_;
+            double          t1_;
     };
 }
 #endif

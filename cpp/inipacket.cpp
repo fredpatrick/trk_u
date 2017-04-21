@@ -52,36 +52,24 @@
 #include <string>
 
 trk::IniPacket::
-IniPacket()
+IniPacket(const std::string& type)
 {
-    std::string todts = JobClock::instance()->tod_timestamp();
+    type_             = type;
     pbfr_             = new PacketBuffer("INI");
-    pbfr_->strdat("tod");
-    pbfr_->strdat(todts);
+    pbfr_->strdat(type_);
 }
 
 trk::IniPacket::
 IniPacket(PacketBuffer* pbfr)
 {
     pbfr_ = pbfr;
-    std::string type = pbfr_->strdat();
-    if ( type == "tod") {
+    type_ = pbfr_->strdat();
+    if ( type_ == "tod") {
         std::string todts = pbfr_->strdat();
-        JobClock* jbc = JobClock::instance();
-        jbc->tod_timestamp(todts);
-
-        pbfr_->reset();
-        pbfr_->strdat("btm");
-        pbfr_->dbldat( jbc->base_time() );
-        pbfr_->dbldat( jbc->job_time() );
-    } else if ( type == "btm" ) {
-        JobClock* jbc  = JobClock::instance();
-        DebugCntl* dbg = DebugCntl::instance();
-        double t0      = pbfr_->dbldat();
-        double t1      = pbfr_->dbldat();
-        jbc->base_time(t0);
-        double tl      = jbc->job_time();
-        *dbg << "IniPacket.ctor-1, type = " << type << ", delta = " << (tl -t1) << trk::endl;
+        tod_timestamp_    = pbfr_->strdat();
+    } else if ( type_ == "btm" ) {
+        t0_       = pbfr_->dbldat();
+        t1_       = pbfr_->dbldat();
     }
 }
 

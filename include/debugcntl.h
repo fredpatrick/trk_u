@@ -65,7 +65,6 @@ namespace trk
             static DebugCntl* instance();
             ~DebugCntl();
 
-            void       parse_argv(int argc, char* argv[]);
             bool       check(int l);
 
             void       level(int l);
@@ -85,5 +84,7 @@ namespace trk
             static DebugCntl* instance_;
             std::vector<std::string> bools_;
     };
+
+    int debug_level(int argc, char* argv[]);
 }
 #endif
