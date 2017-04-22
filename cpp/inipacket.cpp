@@ -50,6 +50,7 @@
 #include "packetbuffer.h"
 
 #include <string>
+#include <iostream>
 
 trk::IniPacket::
 IniPacket(const std::string& type)
@@ -65,7 +66,6 @@ IniPacket(PacketBuffer* pbfr)
     pbfr_ = pbfr;
     type_ = pbfr_->strdat();
     if ( type_ == "tod") {
-        std::string todts = pbfr_->strdat();
         tod_timestamp_    = pbfr_->strdat();
     } else if ( type_ == "btm" ) {
         t0_       = pbfr_->dbldat();
