@@ -60,8 +60,7 @@ class SwitchEvent : public InputEvent
         SwitchEvent(double             tm_event,
                     const std::string& switch_name,
                     int                sw_num,
-                    SW_DIRECTION       sw_direc,
-                    int                value);
+                    SW_DIRECTION       state);
         ~SwitchEvent();
 
         int          write_event(EventDevice* efd);
@@ -69,14 +68,12 @@ class SwitchEvent : public InputEvent
 
         std::string  switch_name();
         int          sw_num();
-        SW_DIRECTION sw_direc();
-        int          value();
+        SW_DIRECTION state();
     private:
         PacketBuffer* ebfr_;
-        std::string  switch_name_;
-        int          sw_num_;
-        SW_DIRECTION sw_direc_;
-        int          value_;
+        std::string   switch_name_;
+        int           sw_num_;
+        SW_DIRECTION  state_;
 };
 
 }

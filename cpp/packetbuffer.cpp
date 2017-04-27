@@ -211,7 +211,7 @@ trkstate()
 
 trk::SW_DIRECTION
 trk::PacketBuffer::
-swdirec()
+swstate()
 {
     int b;
     ::memcpy(&b, &bfr_[bfrndx_], sizeof(int) );
@@ -220,7 +220,7 @@ swdirec()
     else if ( b == 1 ) return OUT;
     else if ( b == 2 ) return NOVAL;
     else {
-        throw enum_out_of_range ("swdirec");
+        throw enum_out_of_range ("swstate");
     }
 }
 

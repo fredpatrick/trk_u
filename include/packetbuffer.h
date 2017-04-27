@@ -75,7 +75,7 @@ namespace trk {
             std::pair<int, int> pairdat();
 
             BLK_STATE    blkstate();
-            SW_DIRECTION swdirec();
+            SW_DIRECTION swstate();
             TRK_STATE    trkstate();
 
             std::string tag();

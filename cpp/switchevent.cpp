@@ -58,31 +58,27 @@ SwitchEvent(PacketBuffer* ebfr)
     event_seq_n_    = ebfr_->intdat();
     switch_name_    = ebfr_->strdat();
     sw_num_         = ebfr_->intdat();
-    sw_direc_       = ebfr_->swdirec();
-    value_          = ebfr_->intdat();
+    state_          = ebfr_->swstate();
 }
 
 trk::SwitchEvent::
 SwitchEvent(double             tm_event,
             const std::string& switch_name,
             int                sw_num,
-            SW_DIRECTION       sw_direc,
-            int                value)
+            SW_DIRECTION       state)
 {
     tag_          = "SW ";
     tm_event_     = tm_event;
     switch_name_  = switch_name;
     sw_num_       = sw_num;
-    sw_direc_     = sw_direc;
-    value_        = value;
+    state_        = state;
     event_seq_n_++;
     ebfr_ = new PacketBuffer(tag_);
     ebfr_->dbldat(tm_event_);
     ebfr_->intdat(event_seq_n_);
     ebfr_->strdat(switch_name_);
     ebfr_->intdat(sw_num_);
-    ebfr_->intdat(sw_direc_);
-    ebfr_->intdat(value_);
+    ebfr_->intdat(state_);
 }
 
 trk::SwitchEvent::
@@ -108,8 +104,7 @@ print(int ntab)
     std::cout << "SwitchEvent::" << 
                                  switch_name_ << " - " << 
                                  sw_num_ << " - " << 
-                                 sw_direc_ <<  " - " << 
-                                 value_ << " - " <<
+                                 state_ <<  " - " << 
                                  event_seq_n_ << " - " << tm_event_ << std::endl;
 }
 
@@ -129,14 +124,7 @@ sw_num()
 
 trk::SW_DIRECTION
 trk::SwitchEvent::
-sw_direc()
+state()
 {
-    return sw_direc_;
-}
-
-int
-trk::SwitchEvent::
-value()
-{
-    return value_;
+    return state_;
 }
