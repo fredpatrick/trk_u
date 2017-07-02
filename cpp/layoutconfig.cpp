@@ -68,7 +68,7 @@ LayoutConfig(const std::string& cfgfil)
 {
     std::ifstream from(cfgfil.c_str() );
     if ( from.is_open() ) {
-        std::cout << "LayoutConfig.ctor, cfgfil opened" << std::endl;
+//      std::cout << "LayoutConfig.ctor, cfgfil opened" << std::endl;
     } else {
         std::cout << "LayoutConfig, open for " << cfgfil << " failed" << std::endl;
     }
@@ -167,15 +167,12 @@ std::vector<std::string>
 trk::LayoutConfig::
 block_sensor_names()
 {
-    std::cout << "LayoutConfig::block_sensor_names" << std::endl;
     std::vector<std::string> bns;
     bns.resize(block_sensors_.size() );
 
     typedef std::map<std::string, BLKData>::const_iterator CI;
     for ( CI p = block_sensors_.begin(); p != block_sensors_.end(); p++) {
-        std::cout << "LayoutConfig::block_sensor_names, " << p->first << std::endl;
         bns[p->second.sensor_index] = p->first;
-        std::cout << "LayoutConfig::block_sensor_names, " << p->first << std::endl;
     }
     return bns;
 }

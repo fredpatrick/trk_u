@@ -42,63 +42,28 @@
  * 
  */
 
+#ifndef TRK_POINT_HH
+#define TRK_POINT_HH
 
-#include "inipacket.h"
-#include "debugcntl.h"
-#include "eventdevice.h"
-#include "jobclock.h"
-#include "packetbuffer.h"
-
-#include <string>
-#include <iostream>
-
-trk::IniPacket::
-IniPacket(const std::string& type)
+namespace trk
 {
-    type_             = type;
-    pbfr_             = new PacketBuffer("INI");
-    pbfr_->strdat(type_);
-}
+    class Point
+    {
+        public:
+            Point( float x = 0.0, float y = 0.0, float z = 0.0);
+            ~Point() {}
+            Point operator+(const Point&);
 
-trk::IniPacket::
-IniPacket(PacketBuffer* pbfr)
-{
-    pbfr_ = pbfr;
-    type_ = pbfr_->strdat();
-    std::cout << "IniPacket.ctor, type_ = " << type_ << std::endl;
-    if ( type_ == "tod") {
-        tod_timestamp_    = pbfr_->strdat();
-    } else if ( type_ == "btm" ) {
-        t0_       = pbfr_->dbldat();
-        t1_       = pbfr_->dbldat();
-        std::cout << "IniPacket.ctor, t0, t1 = " << t0_ << ", " << t1_ << std::endl;
-    }
+            float       x() { return x_; }
+            float       y() { return y_; }
+            float       z() { return z_; }
+            void        x(float v) { x_ = v; }
+            void        y(float v) { y_ = v; }
+            void        z(float v) { z_ = v; }
+        private:
+            float       x_;
+            float       y_;
+            float       z_;
+    };
 }
-
-void
-trk::IniPacket::
-tod_timestamp(const std::string& todts)
-{
-    pbfr_->strdat(todts);
-}
-
-void
-trk::IniPacket::
-t0(double t)
-{
-    pbfr_->dbldat(t);
-}
-
-void
-trk::IniPacket::
-t1(double t)
-{
-    pbfr_->dbldat(t);
-}
-
-void
-trk::IniPacket::
-write(EventDevice* fd)
-{
-    fd->write( pbfr_ );
-}
+#endif

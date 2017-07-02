@@ -42,63 +42,23 @@
  * 
  */
 
+#include "point.h"
 
-#include "inipacket.h"
-#include "debugcntl.h"
-#include "eventdevice.h"
-#include "jobclock.h"
-#include "packetbuffer.h"
-
-#include <string>
-#include <iostream>
-
-trk::IniPacket::
-IniPacket(const std::string& type)
+trk::Point::
+Point( float x, float y, float z)
 {
-    type_             = type;
-    pbfr_             = new PacketBuffer("INI");
-    pbfr_->strdat(type_);
+    x_ = x;
+    y_ = y;
+    z_ = z;
 }
 
-trk::IniPacket::
-IniPacket(PacketBuffer* pbfr)
+trk::Point
+trk::Point::
+operator+(const Point& q)
 {
-    pbfr_ = pbfr;
-    type_ = pbfr_->strdat();
-    std::cout << "IniPacket.ctor, type_ = " << type_ << std::endl;
-    if ( type_ == "tod") {
-        tod_timestamp_    = pbfr_->strdat();
-    } else if ( type_ == "btm" ) {
-        t0_       = pbfr_->dbldat();
-        t1_       = pbfr_->dbldat();
-        std::cout << "IniPacket.ctor, t0, t1 = " << t0_ << ", " << t1_ << std::endl;
-    }
-}
-
-void
-trk::IniPacket::
-tod_timestamp(const std::string& todts)
-{
-    pbfr_->strdat(todts);
-}
-
-void
-trk::IniPacket::
-t0(double t)
-{
-    pbfr_->dbldat(t);
-}
-
-void
-trk::IniPacket::
-t1(double t)
-{
-    pbfr_->dbldat(t);
-}
-
-void
-trk::IniPacket::
-write(EventDevice* fd)
-{
-    fd->write( pbfr_ );
+    Point p;
+    p.x_ = this->x_ + q.x_;
+    p.y_ = this->y_ + q.y_;
+    p.z_ = this->z_ + q.z_;
+    return p;
 }

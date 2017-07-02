@@ -220,6 +220,7 @@ swstate()
     else if ( b == 1 ) return OUT;
     else if ( b == 2 ) return NOVAL;
     else {
+        std::cout << "PacketBuffer.swstate, b = " << b << std::endl;
         throw enum_out_of_range ("swstate");
     }
 }

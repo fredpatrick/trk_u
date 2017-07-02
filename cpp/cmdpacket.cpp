@@ -89,8 +89,7 @@ CmdPacket(PacketBuffer* cbfr)
     for ( int i = 0; i < n_item_; i++) {
         items_[i] = cbfr_->pairdat();
     }
-    std::cout << "CmdPacket.ctor-2" << std::endl;
-    if ( dbg_->check(2) ) {
+    if ( dbg_->check(5) ) {
         std::cout << "CmdPacket.ctor-2, type = " << type_ << 
                                     ", command = " << command_ << 
                                     ", cmd_seqno = " << cmd_seqno_ <<  std::endl;
@@ -116,8 +115,7 @@ write( EventDevice* cmd_fd)
     for ( int i = 0; i < n_item_; i++) {
         cbfr_->pairdat(items_[i]);
     }
-    std::cout << "CmdPacket.write" << std::endl;
-    if ( dbg_->check(2) ) {
+    if ( dbg_->check(5) ) {
         std::cout << "CmdPacket.write, type = " << type_ << 
                                     ", command = " << command_ << 
                                     ", cmd_seqno = " << cmd_seqno_ <<  std::endl;
