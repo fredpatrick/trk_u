@@ -58,7 +58,7 @@ TrackEvent(PacketBuffer* ebfr)
     event_seq_n_  = ebfr_->intdat();
     zonename_     = ebfr_->strdat();
     sensor_index_ = ebfr_->intdat();
-    track_state_  = ebfr_->trkstate();
+    track_state_  = trkstate( ebfr_->intdat() );
 }
 
 trk::TrackEvent::

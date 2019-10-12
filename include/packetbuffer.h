@@ -45,7 +45,6 @@
 #ifndef TRK_PACKETBUFFER_H
 #define TRK_PACKETBUFFER_H
 
-#include "trkutl.h"
 #include <string>
 #include <utility>
 
@@ -73,10 +72,6 @@ namespace trk {
 
             void        pairdat(std::pair<int,int> pdat);
             std::pair<int, int> pairdat();
-
-            BLK_STATE    blkstate();
-            SW_DIRECTION swstate();
-            TRK_STATE    trkstate();
 
             std::string tag();
             int         bfrlen();

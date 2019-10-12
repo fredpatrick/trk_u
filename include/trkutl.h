@@ -36,6 +36,10 @@ struct SWKey {
     }
 };
 
+BLK_STATE    blkstate(int b);
+SW_DIRECTION swstate(int b);
+TRK_STATE    trkstate(int b);
+
 std::string dattime();
 
 std::string get_yesno(const std::string& question);

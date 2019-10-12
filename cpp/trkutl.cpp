@@ -52,6 +52,39 @@
 #include "trkutl.h"
 #include "enum_out_of_range.h"
 
+trk::BLK_STATE
+trk::blkstate(int b)
+{
+    if (      b == 0 ) return GO;
+    else if ( b == 1 ) return STOP;
+    else {
+        throw enum_out_of_range ("blkstate");
+    }
+}
+
+trk::TRK_STATE
+trk::trkstate(int b)
+{
+    if (      b == 0 ) return IDLE;
+    else if ( b == 1 ) return BUSY;
+    else {
+        std::cout << "PacketBuffer.trkstate, b = " << b << std::endl;
+        throw enum_out_of_range ("trkstate");
+    }
+}
+
+trk::SW_DIRECTION
+trk::swstate(int b)
+{
+    if (      b == 0 ) return THRU;
+    else if ( b == 1 ) return OUT;
+    else if ( b == 2 ) return NOVAL;
+    else {
+        std::cout << "PacketBuffer.swstate, b = " << b << std::endl;
+        throw enum_out_of_range ("swstate");
+    }
+}
+
 std::string
 trk::dattime()
 {

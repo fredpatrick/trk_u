@@ -58,7 +58,7 @@ SwitchEvent(PacketBuffer* ebfr)
     event_seq_n_    = ebfr_->intdat();
     switch_name_    = ebfr_->strdat();
     sw_num_         = ebfr_->intdat();
-    state_          = ebfr_->swstate();
+    state_          = swstate( ebfr_->intdat() );
 }
 
 trk::SwitchEvent::

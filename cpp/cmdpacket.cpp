@@ -48,6 +48,7 @@
 #include "eventdevice.h"
 #include "illegal_cmdpacket.h"
 #include "debugcntl.h"
+#include "trkutl.h"
 
 int trk::CmdPacket::cmd_seqno_ = 0;
 

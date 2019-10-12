@@ -58,7 +58,7 @@ BlockEvent(PacketBuffer* ebfr)
     tm_event_     = ebfr_->dbldat();
     event_seq_n_  = ebfr_->intdat();
     block_name_   = ebfr_->strdat();
-    block_state_  = ebfr_->blkstate(); 
+    block_state_  = blkstate( ebfr_->intdat() );
 }
 
 trk::BlockEvent::
