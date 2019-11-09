@@ -62,9 +62,8 @@ PacketBuffer(int                bfrlen,
     bfrlen_ = bfrlen;
     ::memcpy( bfr_, bfr, bfrlen_);
     bfrndx_ = 0;
-    ::memcpy( ctag_, &bfr_[bfrndx_], sizeof(ctag_) );
-    tag_    = ctag_;
-    bfrndx_ += sizeof(ctag_);
+    tag_    = &bfr_[bfrndx_];
+    bfrndx_ += (tag_.length()+1);
 }
 
 trk::PacketBuffer::
@@ -76,7 +75,7 @@ void
 trk::PacketBuffer::
 reset()
 {
-    bfrndx_ = sizeof(ctag_);;
+   bfrndx_ = tag_.length() + 1;
 }
 
 std::string

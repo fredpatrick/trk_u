@@ -42,6 +42,8 @@ TRK_STATE    trkstate(int b);
 
 std::string dattime();
 
+void        setup_files();
+
 std::string get_yesno(const std::string& question);
 
 SWKey      get_switch();

@@ -49,6 +49,8 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
+#include "filestore.h"
+#include "jobclock.h"
 #include "trkutl.h"
 #include "enum_out_of_range.h"
 
@@ -258,3 +260,14 @@ trk::to_swstate(int i)
     }
 }
 
+void
+trk::setup_files()
+{
+    std::string homedir = "/home/fredpatrick/";
+    std::string cfg_filnam = homedir + "wrk/cfg/layout_config.txt";
+    std::string todts = JobClock::instance()->tod_timestamp();
+    std::string dbg_filnam = homedir + "wrk/log/" + todts + "_trkDriver.txt";
+    FileStore* fs = FileStore::instance();
+    fs->cfgfil(cfg_filnam);
+    fs->dbgfil(dbg_filnam);
+}

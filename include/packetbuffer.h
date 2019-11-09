@@ -82,7 +82,6 @@ namespace trk {
             std::string tag_;
             int         bfrlen_;
             int         bfrndx_;
-            char        ctag_[4];
     };
 
 }

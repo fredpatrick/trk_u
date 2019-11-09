@@ -57,6 +57,7 @@ instance()
 {
     if ( !instance_ ) {
         FileStore* fs = FileStore::instance();
+        std::cout << *fs;
         instance_ = new LayoutConfig(fs->cfgfil() );
     }
     return instance_;
@@ -127,6 +128,9 @@ LayoutConfig(const std::string& cfgfil)
             switch_names_[p->second.switch_index] = p->second.switch_name;
         }
     }
+    std::cout << "LayoutConfig.ctor, pcb_power_pin " << pcb_power_pin_ << std::endl;
+    std::cout << "LayoutConfig.ctor, pcb gpio num  " << pcb_power_gpio_num() << std::endl;
+    list_header_pins(std::cout);
 }
 
 std::vector<std::string>
